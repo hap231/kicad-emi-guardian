@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Python
@@ -57,7 +57,7 @@ jobs:
         python-version: ["3.9", "3.13", "3.14"]
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Python
@@ -80,7 +80,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Python
@@ -99,7 +99,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Python
@@ -118,7 +118,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Python
