@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Documentation and build output
+dist/
+docs/_build/
+docs/_generated/
+_build/
+*.egg-info/
+build/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local KiCad and report artifacts
+*.kicad_prl
+*.kicad_pro-bak
+*.kicad_pcb-bak
+*.bak
+reports/
+emi-guardian-report-*/
+
+# Local environment files
+.env
+.env.*
+!.env.example

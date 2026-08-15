@@ -1,0 +1,48 @@
+{
+  "$schema": "https://go.kicad.org/api/schemas/v1",
+  "identifier": "com.openai.kicad.emi-guardian",
+  "name": "EMI Guardian",
+  "description": "EMI review, JLCPCB 2-layer DFM validation, silkscreen cleanup, and board-outline optimization for KiCad 10+.",
+  "runtime": {
+    "type": "python",
+    "min_version": "3.9"
+  },
+  "actions": [
+    {
+      "identifier": "com.openai.kicad.emi-guardian.dashboard",
+      "name": "Open EMI Guardian",
+      "description": "Open the EMI, JLCPCB DFM, silkscreen, and outline optimization dashboard.",
+      "entrypoint": "open_dashboard.py",
+      "show-button": true,
+      "scopes": [
+        "pcb"
+      ],
+      "icons-light": [
+        "icon-light-24.png",
+        "icon-light-48.png"
+      ],
+      "icons-dark": [
+        "icon-dark-24.png",
+        "icon-dark-48.png"
+      ]
+    },
+    {
+      "identifier": "com.openai.kicad.emi-guardian.quick-scan",
+      "name": "Quick EMI Scan",
+      "description": "Analyze the active PCB, including JLCPCB DFM checks, and open an HTML report without changing the board.",
+      "entrypoint": "quick_scan.py",
+      "show-button": false,
+      "scopes": [
+        "pcb"
+      ],
+      "icons-light": [
+        "icon-light-24.png",
+        "icon-light-48.png"
+      ],
+      "icons-dark": [
+        "icon-dark-24.png",
+        "icon-dark-48.png"
+      ]
+    }
+  ]
+}

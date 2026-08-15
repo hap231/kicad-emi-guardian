@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI Guardian 0.0.2 取扱説明書</title>
+<style>
+:root { color-scheme: light dark; --bg:#f4f6f8; --surface:#ffffff; --text:#17202a; --muted:#5d6874; --line:#d8dee6; --accent:#0b6bcb; --accent-soft:#e7f2ff; --code:#eef2f6; --warn:#fff4d6; --shadow:0 12px 40px rgba(15,35,55,.10); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:Inter, "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.72; }
+a { color:var(--accent); text-decoration-thickness:.08em; text-underline-offset:.16em; }
+.layout { display:grid; grid-template-columns:minmax(240px,300px) minmax(0,920px); gap:28px; justify-content:center; padding:28px; }
+.sidebar { position:sticky; top:20px; align-self:start; max-height:calc(100vh - 40px); overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:22px; }
+.brand { font-size:1.18rem; font-weight:760; letter-spacing:-.02em; margin-bottom:4px; }
+.version { color:var(--muted); font-size:.88rem; margin-bottom:18px; }
+.sidebar h2 { font-size:.86rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border:0; margin:0 0 10px; padding:0; }
+.sidebar ul { list-style:none; margin:0; padding:0; }
+.sidebar li { margin:0; }
+.sidebar a { display:block; padding:6px 8px; border-radius:9px; color:var(--text); text-decoration:none; font-size:.9rem; }
+.sidebar a:hover { background:var(--accent-soft); color:var(--accent); }
+.sidebar .toc-subitem a { padding-left:22px; color:var(--muted); font-size:.84rem; }
+main { min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:clamp(28px,6vw,68px); }
+.notice { background:var(--warn); border:1px solid #e5c66d; border-radius:14px; padding:14px 16px; margin:0 0 30px; font-weight:620; }
+h1 { font-size:clamp(2rem,5vw,3.25rem); line-height:1.12; letter-spacing:-.04em; margin:.1em 0 .8em; }
+h2 { font-size:1.55rem; line-height:1.3; margin:2.2em 0 .7em; padding-bottom:.35em; border-bottom:1px solid var(--line); scroll-margin-top:22px; }
+h3 { font-size:1.16rem; margin:1.7em 0 .45em; scroll-margin-top:22px; }
+h4 { font-size:1rem; margin:1.35em 0 .35em; }
+p, ul, ol { margin:.75em 0 1.1em; }
+li + li { margin-top:.32em; }
+blockquote { margin:1.4em 0; border-left:4px solid var(--accent); background:var(--accent-soft); padding:12px 18px; border-radius:0 12px 12px 0; }
+code { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:.12em .35em; font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size:.9em; }
+pre { overflow:auto; background:#121820; color:#edf4fb; border-radius:14px; padding:18px; line-height:1.5; }
+pre code { background:transparent; border:0; padding:0; color:inherit; }
+table { width:100%; border-collapse:separate; border-spacing:0; margin:1.2em 0 1.7em; border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:.94rem; }
+th, td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+th { background:var(--code); font-weight:700; }
+tr:last-child td { border-bottom:0; }
+th:last-child, td:last-child { border-right:0; }
+hr { border:0; border-top:1px solid var(--line); margin:2.5em 0; }
+footer { color:var(--muted); border-top:1px solid var(--line); margin-top:3.5em; padding-top:1.4em; font-size:.86rem; }
+@media (max-width:900px) { .layout { grid-template-columns:1fr; padding:14px; } .sidebar { position:relative; top:0; max-height:none; } main { padding:28px 22px; } }
+@media print { :root { --bg:#fff; --surface:#fff; --text:#000; --muted:#444; --line:#bbb; } .layout { display:block; padding:0; } .sidebar { display:none; } main { border:0; box-shadow:none; border-radius:0; padding:0; } a { color:inherit; text-decoration:none; } h2, h3 { break-after:avoid; } table, pre, blockquote { break-inside:avoid; } }
+@media (prefers-color-scheme:dark) { :root { --bg:#0f141a; --surface:#171e26; --text:#e8edf2; --muted:#a8b3bf; --line:#34404c; --accent:#7db8ff; --accent-soft:#172d45; --code:#222c36; --warn:#3a3019; --shadow:0 12px 40px rgba(0,0,0,.30); } }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" aria-label="目次">
+<div class="brand">EMI Guardian</div>
+<div class="version">Version 0.0.2</div>
+<h2>目次</h2>
+<ul><li class="toc-item"><a href="#1-本pluginの目的">1. 本Pluginの目的</a></li>
+<li class="toc-item"><a href="#2-安全上の重要事項">2. 安全上の重要事項</a></li>
+<li class="toc-item"><a href="#3-インストール-更新-アンインストール">3. インストール、更新、アンインストール</a></li>
+<li class="toc-subitem"><a href="#3-1-共通の準備">3.1 共通の準備</a></li>
+<li class="toc-subitem"><a href="#3-2-windows">3.2 Windows</a></li>
+<li class="toc-subitem"><a href="#3-3-macos">3.3 macOS</a></li>
+<li class="toc-subitem"><a href="#3-4-linux">3.4 Linux</a></li>
+<li class="toc-subitem"><a href="#3-5-手動インストール">3.5 手動インストール</a></li>
+<li class="toc-item"><a href="#4-kicad側の設定と起動場所">4. KiCad側の設定と起動場所</a></li>
+<li class="toc-subitem"><a href="#4-1-kicad-apiを有効にする">4.1 KiCad APIを有効にする</a></li>
+<li class="toc-subitem"><a href="#4-2-起動場所">4.2 起動場所</a></li>
+<li class="toc-subitem"><a href="#4-3-外部プラグインに表示されない場合">4.3 外部プラグインに表示されない場合</a></li>
+<li class="toc-item"><a href="#5-画面-言語-青系テーマ">5. 画面、言語、青系テーマ</a></li>
+<li class="toc-item"><a href="#6-最初に行う推奨手順">6. 最初に行う推奨手順</a></li>
+<li class="toc-item"><a href="#7-基板プレビューの使い方">7. 基板プレビューの使い方</a></li>
+<li class="toc-subitem"><a href="#7-1-拡大-縮小-移動">7.1 拡大、縮小、移動</a></li>
+<li class="toc-subitem"><a href="#7-2-レイヤー表示">7.2 レイヤー表示</a></li>
+<li class="toc-subitem"><a href="#7-3-大規模基板の表示上限">7.3 大規模基板の表示上限</a></li>
+<li class="toc-item"><a href="#8-kicad上で指摘場所を表示する">8. KiCad上で指摘場所を表示する</a></li>
+<li class="toc-item"><a href="#9-スコアの読み方">9. スコアの読み方</a></li>
+<li class="toc-item"><a href="#10-sharp-trace-corner判定">10. Sharp trace corner判定</a></li>
+<li class="toc-subitem"><a href="#10-1-v0-0-2の既定動作">10.1 v0.0.2の既定動作</a></li>
+<li class="toc-subitem"><a href="#10-2-調整項目">10.2 調整項目</a></li>
+<li class="toc-item"><a href="#11-electrically-long-routed-net判定">11. Electrically long routed net判定</a></li>
+<li class="toc-subitem"><a href="#11-1-改良された経路長">11.1 改良された経路長</a></li>
+<li class="toc-subitem"><a href="#11-2-既定判定">11.2 既定判定</a></li>
+<li class="toc-subitem"><a href="#11-3-調整">11.3 調整</a></li>
+<li class="toc-item"><a href="#12-その他の定性評価">12. その他の定性評価</a></li>
+<li class="toc-item"><a href="#13-gndアンテナ検出と修正プレビュー">13. GNDアンテナ検出と修正プレビュー</a></li>
+<li class="toc-subitem"><a href="#13-1-検出">13.1 検出</a></li>
+<li class="toc-subitem"><a href="#13-2-修正案">13.2 修正案</a></li>
+<li class="toc-subitem"><a href="#13-3-修正プレビュー">13.3 修正プレビュー</a></li>
+<li class="toc-subitem"><a href="#13-4-適用">13.4 適用</a></li>
+<li class="toc-item"><a href="#14-シルクスクリーン整備とプレビュー">14. シルクスクリーン整備とプレビュー</a></li>
+<li class="toc-item"><a href="#15-外形最適化">15. 外形最適化</a></li>
+<li class="toc-subitem"><a href="#15-1-既定方式">15.1 既定方式</a></li>
+<li class="toc-subitem"><a href="#15-2-何角形にするか">15.2 何角形にするか</a></li>
+<li class="toc-subitem"><a href="#15-3-直交モード">15.3 直交モード</a></li>
+<li class="toc-subitem"><a href="#15-4-gnd外周と適用条件">15.4 GND外周と適用条件</a></li>
+<li class="toc-item"><a href="#16-gndビアステッチング">16. GNDビアステッチング</a></li>
+<li class="toc-item"><a href="#17-回路ブロックに基づく初期配置">17. 回路ブロックに基づく初期配置</a></li>
+<li class="toc-item"><a href="#18-jlcpcb製造プロファイル">18. JLCPCB製造プロファイル</a></li>
+<li class="toc-subitem"><a href="#16-1-低コスト既定">16.1 低コスト既定</a></li>
+<li class="toc-subitem"><a href="#16-2-製造能力限界">16.2 製造能力限界</a></li>
+<li class="toc-subitem"><a href="#16-3-板厚と色">16.3 板厚と色</a></li>
+<li class="toc-subitem"><a href="#16-4-複数配線プリセット">16.4 複数配線プリセット</a></li>
+<li class="toc-subitem"><a href="#16-5-複数ビアプリセット">16.5 複数ビアプリセット</a></li>
+<li class="toc-subitem"><a href="#16-6-dfmと出力">16.6 DFMと出力</a></li>
+<li class="toc-item"><a href="#19-接続維持と長時間放置">19. 接続維持と長時間放置</a></li>
+<li class="toc-item"><a href="#20-実行速度">20. 実行速度</a></li>
+<li class="toc-item"><a href="#21-定量評価">21. 定量評価</a></li>
+<li class="toc-item"><a href="#22-設定リファレンスの要点">22. 設定リファレンスの要点</a></li>
+<li class="toc-subitem"><a href="#20-1-一般">20.1 一般</a></li>
+<li class="toc-subitem"><a href="#20-2-アンテナ">20.2 アンテナ</a></li>
+<li class="toc-subitem"><a href="#20-3-ノイズ">20.3 ノイズ</a></li>
+<li class="toc-subitem"><a href="#20-4-外形">20.4 外形</a></li>
+<li class="toc-item"><a href="#23-レポートとデータ保持">23. レポートとデータ保持</a></li>
+<li class="toc-item"><a href="#24-トラブルシューティング">24. トラブルシューティング</a></li>
+<li class="toc-subitem"><a href="#折れ角スコアが低い">折れ角スコアが低い</a></li>
+<li class="toc-subitem"><a href="#鋭角を検出しない">鋭角を検出しない</a></li>
+<li class="toc-subitem"><a href="#長配線が多すぎる">長配線が多すぎる</a></li>
+<li class="toc-subitem"><a href="#kicadで場所を表示してもズームしない">KiCadで場所を表示してもズームしない</a></li>
+<li class="toc-subitem"><a href="#長時間後に接続できない">長時間後に接続できない</a></li>
+<li class="toc-subitem"><a href="#配線-ビアを複数選べない">配線／ビアを複数選べない</a></li>
+<li class="toc-subitem"><a href="#シルクまたは修正案が見えない">シルクまたは修正案が見えない</a></li>
+<li class="toc-subitem"><a href="#dfmエラーが多い">DFMエラーが多い</a></li>
+<li class="toc-item"><a href="#25-発注前チェックリスト">25. 発注前チェックリスト</a></li>
+<li class="toc-item"><a href="#26-githubへ公開する">26. GitHubへ公開する</a></li>
+<li class="toc-item"><a href="#27-制限事項">27. 制限事項</a></li>
+<li class="toc-item"><a href="#28-参照先">28. 参照先</a></li></ul>
+</aside>
+<main>
+<div class="notice">JLCPCBの製造条件と価格は変更される可能性があります。発注前に最新見積とDFMを確認してください。</div>
+<h1 id="emi-guardian-0-0-2-取扱説明書">EMI Guardian 0.0.2 取扱説明書</h1>
+<p><strong>対象:</strong> KiCad 10.0.5以降
+<strong>Python:</strong> 3.9以降
+<strong>主対象:</strong> 2層FR-4基板
+<strong>文書版:</strong> 0.0.2
+<strong>JLCPCB公開情報確認日:</strong> 2026-08-13</p>
+<hr />
+<h2 id="1-本pluginの目的">1. 本Pluginの目的</h2>
+<p>EMI Guardianは、PCB Editorで開いている基板をKiCadの公開IPC API経由で読み取り、初心者にも確認箇所が分かる形で次の作業を支援します。</p>
+<ol>
+<li>GNDベタの細長い突起、弱い首、孤立島、遠いGNDアンカーなどのアンテナ候補検出</li>
+<li>同一GND配線、ステッチングビア、配線＋ビア、銅箔禁止ルールエリアによる対策案</li>
+<li>スタブ、平行配線、鋭角、配線長、リターンビア、基板端、差動対の定性評価</li>
+<li>伝搬遅延、臨界配線長、1/4波長共振、インピーダンス、表皮深さなどの一次近似</li>
+<li>部品番号を隠し、部品値を読みやすく再配置するシルク整備</li>
+<li>凸形状を基本とし、元の外形に存在した凹部だけを安全条件付きで残すEdge.Cuts案</li>
+<li>JLCPCB 2層基板向けの低コスト／製造能力限界プロファイルとDFM事前確認</li>
+<li>Windows、macOS、Linuxでの導入、更新、削除</li>
+</ol>
+<p>本Pluginはエンジニアリングスクリーニング用です。指摘がないことは、EMI・EMC問題、信号品質問題、製造問題の不存在証明ではありません。最終判断にはKiCad DRC、Gerber確認、製造会社DFM、必要に応じてオシロスコープ、TDR、近傍界測定、EMC試験、電磁界解析を使用してください。</p>
+<h2 id="2-安全上の重要事項">2. 安全上の重要事項</h2>
+<ul>
+<li>初回は必ず<strong>Dry-run</strong>を有効にします。</li>
+<li>アンテナ修正、シルク変更、Edge.Cuts置換は、プレビューと明示確認を終えるまで実行しません。</li>
+<li>自動GND対策は、GNDとAGNDなど異なるネットを接続しません。ただし回路意図、絶縁、電流検出、RF整合、アナログ分離までは理解できません。</li>
+<li>Edge.Cuts変更は機構・筐体・パネル・コネクタへ影響する破壊的操作です。基板コピーで試します。</li>
+<li>変更後はゾーン再塗りつぶし、KiCad DRC、Gerber、ドリル、外形、ソルダーマスク、シルクを確認します。</li>
+<li>JLCPCBの「低コスト」は、公開された既知の追加料金条件を避けやすい基準であり、価格保証ではありません。</li>
+</ul>
+<h2 id="3-インストール-更新-アンインストール">3. インストール、更新、アンインストール</h2>
+<h3 id="3-1-共通の準備">3.1 共通の準備</h3>
+<p>インストール、更新、アンインストールを行う前に、PCB EditorだけでなくKiCadプロジェクトマネージャを含む<strong>全KiCadプロセスを終了</strong>します。基板ファイルを保存し、可能ならGitや別名保存でバックアップします。</p>
+<p>各インストーラーは現在のユーザーだけを対象とし、管理者権限を要求しません。KiCadの<code>plugins</code>配下だけでなく、OS一時ディレクトリにも<strong>旧Pluginのバックアップを作りません</strong>。新しいペイロードだけを一時領域で検査してから既存Pluginを削除して配置します。最終配置に失敗した場合は不完全な配置を削除し、自動ロールバックは行いません。原因を修正してインストーラーを再実行してください。旧<code>_emi-guardian-backups</code>と残留ステージングフォルダーも自動削除します。Plugin本体の更新後はKiCad管理のPython環境を削除し、次回起動時に整合した環境を再作成させます。通常のアンインストールではユーザー設定とレポートを保持します。</p>
+<h3 id="3-2-windows">3.2 Windows</h3>
+<ol>
+<li><code>emi-guardian-0.0.2-windows-installer.zip</code>を展開します。</li>
+<li><code>Install-or-Update.cmd</code>をダブルクリックします。</li>
+<li>Windowsの警告が出た場合は、ファイルの発行元と配布元を確認してから実行します。</li>
+<li>完了後にKiCadを起動します。</li>
+</ol>
+<p>更新も同じ<code>Install-or-Update.cmd</code>を使用します。削除は<code>Uninstall.cmd</code>を実行します。</p>
+<p>PowerShellを直接使う場合:</p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File .\install-or-update.ps1
+powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+</code></pre>
+<p>既定の配置先:</p>
+<pre><code class="language-text">&lt;Documents&gt;\KiCad\10.0\plugins\emi-guardian\plugin.json
+</code></pre>
+<p><code>&lt;Documents&gt;</code>がOneDriveへ移動されている場合も、インストーラーはWindowsが返す実際のDocumentsパスを使用します。</p>
+<h3 id="3-3-macos">3.3 macOS</h3>
+<ol>
+<li><code>emi-guardian-0.0.2-macos-installer.zip</code>を展開します。</li>
+<li><code>install-or-update.command</code>を実行します。</li>
+<li>実行権限が失われている場合は、Terminalで次を実行します。</li>
+</ol>
+<pre><code class="language-bash">chmod +x install-or-update.command uninstall.command
+./install-or-update.command
+</code></pre>
+<p>削除:</p>
+<pre><code class="language-bash">./uninstall.command
+</code></pre>
+<p>既定の配置先:</p>
+<pre><code class="language-text">~/Documents/KiCad/10.0/plugins/emi-guardian/plugin.json
+</code></pre>
+<h3 id="3-4-linux">3.4 Linux</h3>
+<pre><code class="language-bash">unzip emi-guardian-0.0.2-linux-installer.zip
+cd emi-guardian-0.0.2-linux
+chmod +x install-or-update.sh uninstall.sh
+./install-or-update.sh
+</code></pre>
+<p>削除:</p>
+<pre><code class="language-bash">./uninstall.sh
+</code></pre>
+<p>既定の配置先:</p>
+<pre><code class="language-text">~/.local/share/KiCad/10.0/plugins/emi-guardian/plugin.json
+</code></pre>
+<h3 id="3-5-手動インストール">3.5 手動インストール</h3>
+<p>インストーラーを使わない場合は、<code>emi-guardian-0.0.2-manual-install.zip</code>内の<code>emi-guardian</code>フォルダーをOSごとの<code>plugins</code>フォルダーへ置きます。最終構成は必ず次の深さにします。</p>
+<pre><code class="language-text">plugins/
+└── emi-guardian/
+    ├── plugin.json
+    ├── open_dashboard.py
+    ├── quick_scan.py
+    ├── requirements.txt
+    ├── default-config.json
+    └── emi_guardian/
+</code></pre>
+<p>次は誤りです。</p>
+<pre><code class="language-text">plugins/emi-guardian/emi-guardian/plugin.json
+plugins/emi-guardian-0.0.2-manual-install/emi-guardian/plugin.json
+</code></pre>
+<h2 id="4-kicad側の設定と起動場所">4. KiCad側の設定と起動場所</h2>
+<h3 id="4-1-kicad-apiを有効にする">4.1 KiCad APIを有効にする</h3>
+<p>KiCadプロジェクトマネージャの共通設定を開きます。</p>
+<pre><code class="language-text">設定 / Preferences
+└── 設定... / Preferences...
+    └── Plugins
+</code></pre>
+<p>次を確認します。</p>
+<ul>
+<li><strong>Enable KiCad API</strong>がオン</li>
+<li>Pythonインタープリターが設定されている</li>
+<li>Pythonが3.9以降</li>
+</ul>
+<p>KiCadを完全に再起動し、PCB Editorで<code>.kicad_pcb</code>を開きます。初回はKiCadがPlugin専用Python環境を作成し、<code>requirements.txt</code>の依存関係を導入します。</p>
+<h3 id="4-2-起動場所">4.2 起動場所</h3>
+<p>PCB Editorで次を選びます。</p>
+<pre><code class="language-text">ツール
+└── 外部プラグイン
+    ├── Open EMI Guardian
+    └── Quick EMI Scan
+</code></pre>
+<p>通常は<strong>Open EMI Guardian</strong>を選びます。標準ブラウザーで<code>127.0.0.1</code>上のローカルダッシュボードが開きます。この画面はPC内だけで動作します。</p>
+<p><code>Quick EMI Scan</code>は読み取り専用の簡易解析用です。</p>
+<h3 id="4-3-外部プラグインに表示されない場合">4.3 外部プラグインに表示されない場合</h3>
+<ol>
+<li><code>plugins/emi-guardian/plugin.json</code>の位置を確認します。</li>
+<li>KiCad共通設定のPluginsでAPIとPythonを確認します。</li>
+<li>KiCadを完全終了して再起動します。</li>
+<li>PCB Editor右下のPlugin警告を開きます。</li>
+<li><code>Python interpreter</code>、<code>Failed to create plugin environment</code>、<code>Failed to install</code>、<code>kicad-python</code>などのメッセージを確認します。</li>
+<li>インストーラーを再実行すると、既存Pluginを置換し、<code>plugins</code>配下の旧バックアップ／残留ステージングを削除して、管理Python環境を再作成できます。ロールバック用の旧Pluginコピーは作りません。</li>
+</ol>
+<h2 id="5-画面-言語-青系テーマ">5. 画面、言語、青系テーマ</h2>
+<p>v0.0.2では基調色を青系へ変更しました。日本語を選択した場合、メニューだけでなく、検出結果の題名、説明、推奨対応、カテゴリ、測定項目名、JLCPCB DFM詳細も日本語で表示します。保存済みレポートには日英双方の表現を保持します。</p>
+<p>主画面:</p>
+<table>
+<thead>
+<tr>
+<th>画面</th>
+<th>主な用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ダッシュボード</td>
+<td>総合／カテゴリスコア、基板プレビュー、指摘一覧</td>
+</tr>
+<tr>
+<td>アンテナ修正</td>
+<td>GNDアンテナ対策の作成、比較、プレビュー、適用</td>
+</tr>
+<tr>
+<td>シルク整備</td>
+<td>部品値配置案、現在シルクとの比較、適用</td>
+</tr>
+<tr>
+<td>外形最適化</td>
+<td>凸形状を基本とする外形案、頂点数、フィレット、GND帯確認</td>
+</tr>
+<tr>
+<td>JLCPCB製造</td>
+<td>板厚、色、配線／ビアプリセット、DFM、発注bundle</td>
+</tr>
+<tr>
+<td>定量評価</td>
+<td>高速な一次近似と外部ソルバ用データ</td>
+</tr>
+<tr>
+<td>設定</td>
+<td>全パラメータ、安全設定、接続設定、詳細JSON</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-最初に行う推奨手順">6. 最初に行う推奨手順</h2>
+<ol>
+<li>基板を保存し、バックアップまたはGitコミットを作ります。</li>
+<li>Pluginを起動し、Dry-runが有効であることを確認します。</li>
+<li>JLCPCB製造で予定する板厚・色・表面処理を選びます。</li>
+<li>通常は「JLCPCB 2層・低コスト」を適用します。</li>
+<li>配線幅とビアを複数選択できます。少なくとも各1つを選びます。</li>
+<li>DFMチェックを実行します。</li>
+<li>ダッシュボードで解析を実行します。</li>
+<li>指摘をクリックし、詳細とプレビューを確認します。</li>
+<li>必要な指摘は<strong>KiCadで場所を表示</strong>して実基板上で確認します。</li>
+<li>アンテナ、シルク、外形の案を作成し、専用プレビューで比較します。</li>
+<li>基板コピーでのみ自動変更を試し、DRCとGerberを確認します。</li>
+</ol>
+<h2 id="7-基板プレビューの使い方">7. 基板プレビューの使い方</h2>
+<h3 id="7-1-拡大-縮小-移動">7.1 拡大、縮小、移動</h3>
+<p>各プレビューには次の操作があります。</p>
+<ul>
+<li><strong>全体表示:</strong> 基板全体へ戻す</li>
+<li><strong>拡大／縮小:</strong> ボタンによる段階変更</li>
+<li><strong>マウスホイール／トラックパッド:</strong> ポインター位置を中心に拡大縮小</li>
+<li><strong>ドラッグ:</strong> 表示範囲を移動</li>
+<li><strong>指摘マーカーをクリック:</strong> 詳細画面を開く</li>
+<li><strong>指摘マーカーへカーソルを置く:</strong> 題名、カテゴリ、重大度、確信度の要約を表示</li>
+<li><strong>Findings一覧へカーソルを置く:</strong> 対応するプレビューマーカーを強調</li>
+</ul>
+<p>最大・最小倍率を設け、極端なズームで表示が失われないようにしています。</p>
+<h3 id="7-2-レイヤー表示">7.2 レイヤー表示</h3>
+<p>基板に存在するレイヤーに応じて切替が表示されます。代表例:</p>
+<ul>
+<li><code>F.Cu</code>, <code>B.Cu</code>, 内層Cu</li>
+<li><code>F.SilkS</code>, <code>B.SilkS</code></li>
+<li><code>Edge.Cuts</code></li>
+<li>パッド</li>
+<li>ビア</li>
+<li>フットプリント外接矩形</li>
+<li>指摘</li>
+<li>修正案</li>
+<li>シルク案</li>
+</ul>
+<p><strong>全て</strong>と<strong>全て非表示</strong>も使用できます。全て非表示にしても<strong>指摘</strong>レイヤーは残るため、指摘位置を見失いません。GNDゾーンは塗りつぶしポリゴン、配線は幅付き線、パッドとビアは簡略図形として表示されます。</p>
+<h3 id="7-3-大規模基板の表示上限">7.3 大規模基板の表示上限</h3>
+<p>ブラウザーを固めないため、プレビューには配線5000、パッド5000、ビア3000、フットプリント2500、ゾーン100などの上限があります。省略件数はプレビュー情報に保持されます。解析本体の対象を同じ数に制限するものではありません。</p>
+<h2 id="8-kicad上で指摘場所を表示する">8. KiCad上で指摘場所を表示する</h2>
+<p>指摘カードまたは詳細画面の<strong>KiCadで場所を表示</strong>を押すと、Pluginは次を試します。</p>
+<ol>
+<li>指摘の根拠となったKiCadアイテムIDを解決</li>
+<li>現在の選択を解除</li>
+<li>根拠アイテムを選択</li>
+<li>可能なら該当レイヤーをアクティブ化</li>
+<li>可能なら「選択範囲へズーム」に相当するKiCadアクションを実行</li>
+</ol>
+<p>KiCad 10の公開IPCには、Pluginが独自の永続DRCマーカーを安定して生成する公開機能がありません。このため、v0.0.2は基板を変更しない<strong>選択＋ズーム</strong>方式を使用します。KiCadの内部アクション名が将来変わった場合、選択は成功しても自動ズームだけ失敗する可能性があります。その場合はPCB Editorで<code>Home</code>や選択範囲ズームを使用してください。</p>
+<p>GNDベタのラスタ解析など、1つのKiCadオブジェクトへ直接対応しない指摘は、位置マーカーだけ、または関連オブジェクトの選択になります。<strong>プレビュー上で場所を表示</strong>はKiCadを変更せず、基板プレビューを指摘座標へ移動してマーカーを選択します。</p>
+<h2 id="9-スコアの読み方">9. スコアの読み方</h2>
+<p>総合とカテゴリ別スコアは0～100で、高いほど幾何学的な注意箇所が少ないことを示します。v0.0.2では、軽微な指摘が多いだけで線形減点が無制限に蓄積し、折れ角カテゴリが0点へ張り付く問題を修正しました。現在は指摘数とペナルティに対して減衰する影響を使い、カテゴリスコアを1.0以上へ保ちます。</p>
+<p>スコアは設計比較と優先順位付け用であり、合格／不合格の規格判定ではありません。重大な1件が高スコアに埋もれる可能性もあるため、件数だけでなく各指摘の重大度、確信度、測定値を確認します。</p>
+<h2 id="10-sharp-trace-corner判定">10. Sharp trace corner判定</h2>
+<h3 id="10-1-v0-0-2の既定動作">10.1 v0.0.2の既定動作</h3>
+<p>既定の鋭角閾値は**75°**です。内角が75°未満の場合だけ候補になります。通常の90°角は指摘しません。推奨される2本の45°配線で作られた135°内角も指摘しません。</p>
+<p>次を既定で除外します。</p>
+<ul>
+<li>パッド外接範囲と設定された余白内の頂点</li>
+<li>ビア上の頂点</li>
+<li>3本以上が接続する分岐点</li>
+<li>0.50 mm未満の短い隣接セグメント</li>
+<li>同じKiCad円弧を近似した内部接続点</li>
+<li>同じ元アイテムから生じた重複セグメント</li>
+</ul>
+<p>この除外により、四角形パッドの角やパッドへ入る配線を誤って「鋭角配線」と数える問題を抑えます。ただしパッド直前に実在する鋭い折れが余白外にあれば判定されます。</p>
+<h3 id="10-2-調整項目">10.2 調整項目</h3>
+<ul>
+<li><code>noise.acute_corner_warning_deg</code>: 閾値。厳しくするなら80～90°、鋭角だけなら45～60°</li>
+<li><code>noise.corner_pad_exclusion</code>: パッド／ビア周辺の除外</li>
+<li><code>noise.corner_pad_clearance_mm</code>: パッド外接範囲からの余白</li>
+<li><code>noise.corner_min_segment_length_mm</code>: 微小セグメントの除外長</li>
+<li><code>noise.corner_skip_complex_junctions</code>: 分岐点除外</li>
+</ul>
+<p>角度だけでEMIを決定しないため、折れ角の重みは既定で総合スコアの10%です。リターン経路、平行結合、GND形状を先に確認します。</p>
+<h2 id="11-electrically-long-routed-net判定">11. Electrically long routed net判定</h2>
+<h3 id="11-1-改良された経路長">11.1 改良された経路長</h3>
+<p>旧方式のようにネット内の全枝配線を単純合計すると、短い多分岐バスが非常に長い1本の配線に見えることがあります。v0.0.2では、同一ネットの接続成分をグラフ化し、端点間で最も長い実経路を推定します。小さい成分は全ノードを探索し、大きい成分は <code>long_net_diameter_scan_limit</code>（既定32）を上限として端点・分岐点または閉ループ上の点を探索します。総銅箔長は補助情報として保持しますが、電気的な経路長へ無条件に加算しません。</p>
+<h3 id="11-2-既定判定">11.2 既定判定</h3>
+<ul>
+<li>幾何学閾値: 50 mm</li>
+<li>信号立上り時間: 1.0 ns</li>
+<li>臨界長係数: 伝搬距離の1/6</li>
+<li>モード: <code>both_or_severe</code></li>
+<li>GND、主要電源名は既定で除外</li>
+</ul>
+<p><code>both_or_severe</code>では、幾何学閾値と電気的閾値の双方を超える場合、またはいずれか小さい閾値の1.5倍を超える場合に指摘します。これにより「どちらか一方を少し超えただけ」の過剰検出を抑えつつ、明らかに長い経路を取り逃しにくくします。</p>
+<h3 id="11-3-調整">11.3 調整</h3>
+<ul>
+<li>実デバイスの信号立上り時間を入力します。クロック周波数ではなくエッジ速度を優先します。</li>
+<li>遅いGPIOでは立上り時間を大きくします。</li>
+<li>高速差動やメモリでは、ネットクラス別プリセットがない現状では対象基板に合わせて設定を保存します。</li>
+<li>電源も確認したい場合は<code>long_net_ignore_regex</code>を変更します。</li>
+<li><code>either</code>は感度優先、<code>both</code>は誤検出抑制優先です。</li>
+</ul>
+<h2 id="12-その他の定性評価">12. その他の定性評価</h2>
+<ul>
+<li><strong>Dangling stub:</strong> パッド／ビアへ固定されていない短枝</li>
+<li><strong>Parallel coupling:</strong> 異ネットの平行区間、間隔、重なり長</li>
+<li><strong>Missing return via:</strong> 層変更ビア付近にGNDリターンビアがない</li>
+<li><strong>Edge-proximate signal:</strong> 信号配線が基板端へ近い</li>
+<li><strong>Differential-pair mismatch:</strong> P/Nまたは+/-名のペアの経路長差</li>
+<li><strong>Ground-pour antenna:</strong> 弱い首、細長さ、アンカー距離、推定共振、近傍アグレッサ</li>
+</ul>
+<p>判定は形状と設定に基づきます。2層基板では一般的な層変更GNDリターンビア警告を既定で無効にし、端点ブレークアウトを除いた持続的な基準面欠落だけを絶対長と経路比の両方で判定します。GND帰路の迂回も高い比率と絶対超過長の両方を要求します。ネットの機能、ドライバー電流、終端、ケーブル、筐体、コモンモード変換を自動では完全に理解しません。</p>
+<h2 id="13-gndアンテナ検出と修正プレビュー">13. GNDアンテナ検出と修正プレビュー</h2>
+<h3 id="13-1-検出">13.1 検出</h3>
+<p>塗りつぶし済みGNDポリゴンを設定解像度でラスタ化し、最初に<strong>保護GNDバックボーン</strong>を構成します。モルフォロジーopeningには、狭い首幅と必要接続幅<code>t</code>（既定1.0 mm）の大きい方を使います。最大の広い領域を主GNDコアとし、他の広い領域も全て必須接続群にするため、2つの大きなGND領域を結ぶ唯一の細い橋を削除対象にしません。全パッド領域と保守的なパッド逃げ／サーマル余白は除去禁止とし、同一ネットのGNDパッド、GNDビア、明示的なGND配線、既存外周GNDの各連結成分を必須端子として扱います。各副コアと必須端子から主GNDコアまで、既存銅箔上の最短経路を求め、その経路を幅<code>t</code>まで保護します。この保護領域の外側に残る銅箔だけを突起候補とし、候補を除去しても全必須群が主GNDコアへ到達できることを再度証明できた場合だけ指摘します。浮遊成分は未接続アイランドとして分類し、同じ銅箔へ重複して突起指摘を出しません。ゾーンが未塗りつぶしの場合は正しい評価ができないため、先にKiCadでゾーンを塗りつぶします。</p>
+<p>閉じた有効なEdge.Cuts、広いGNDコア、ラスタ上限、必須端子の接続証明のいずれかが得られない場合、余剰銅箔の自動除去は安全側に停止します。パッド逃げや外周帰路を推測で削るより、ルールエリアを提案しないことを優先します。</p>
+<h3 id="13-2-修正案">13.2 修正案</h3>
+<p>安全性を証明できた指摘について次を比較します。</p>
+<ol>
+<li>検出残差と完全一致する銅箔ベタ禁止ルールエリア</li>
+<li>実際の未被覆ギャップをまたぐ場合だけ同一GND配線ブリッジ</li>
+<li>新しい層間接続を作れる場合だけGNDステッチングビア</li>
+<li>上記両方が成立する場合だけ配線＋ビア</li>
+</ol>
+<p>ルールエリアがパッド、必要幅<code>t</code>の接続路、明示的なGND配線、保護外周GNDに触れる場合、またはEdge.Cuts外へ出る場合は候補を破棄します。検出形状を外側へ拡張しません。修正案作成の直前に、現在の基板に対して保護バックボーン解析を再実行し、ルールエリア形状が現時点でも安全証明済み残差と完全一致することを確認します。したがって、指摘後にパッド、GND経路、外周GND、ゾーン形状を変更した場合、古い指摘は安全側に拒否されます。新しい配線とビアは、凹部や内部切り欠きを含むEdge.Cuts内に全幅が収まり、別ネットの配線、ビア、パッド、塗りつぶしゾーンとのクリアランスを満たす場合だけ候補になります。細長い連結突起では原則として安全確認済みルールエリアを優先し、既存GNDベタ上へ重ねるだけの配線は生成しません。</p>
+<p>書き込み要求では、さらに独立した安全確認を行います。適用直前にアクティブ基板を再読込し、全解析と計画を再実行し、選択案のID、対象ネット／レイヤー、形状、寸法、安全証明パラメータがプレビューと完全一致することを要求します。消失または変化した案が1件でもあれば全適用を中止し、基板を変更せず修正プレビューの再作成を要求します。</p>
+<h3 id="13-3-修正プレビュー">13.3 修正プレビュー</h3>
+<p><strong>修正案を作成</strong>すると専用プレビューへ次を重ねます。</p>
+<ul>
+<li>追加予定のGND配線</li>
+<li>追加予定のビア</li>
+<li>追加予定のルールエリア</li>
+<li>現在の銅箔、パッド、ビア、シルク、指摘</li>
+</ul>
+<p>拡大、移動、レイヤー切替を使用して、別ネットとの干渉、電流帰路、部品下、基板端を確認します。各案のチェックボックスで部分採用でき、選択案と未選択案は異なる表示になります。</p>
+<h3 id="13-4-適用">13.4 適用</h3>
+<p>Dry-runを解除し、確認チェックを選び、確信度閾値を満たす案だけを適用します。プレビュー作成後から適用までの間にパッド、GND配線、ゾーン、Edge.Cutsを編集しないでください。変更を検出した場合は適用を拒否するため、修正プレビューを再作成します。適用後はゾーン再塗りつぶしとDRCを行います。処理は可能な限り1つのUndo単位へまとめます。</p>
+<h2 id="14-シルクスクリーン整備とプレビュー">14. シルクスクリーン整備とプレビュー</h2>
+<p>既定値:</p>
+<ul>
+<li>文字幅0.8 mm</li>
+<li>文字高さ0.8 mm</li>
+<li>線幅0.10 mm</li>
+<li>参照番号を非表示</li>
+<li>部品値を表示</li>
+<li>パッド、ビア、基板端、既存文字を回避</li>
+<li>ロック済みフットプリントは変更しない</li>
+<li>0°、90°、+45°、-45°から安全な向きを選ぶ</li>
+<li>MountingHoleとLOGOの値は既定で非表示</li>
+<li>参照番号はF.Fab／B.Fabへ移して非表示</li>
+</ul>
+<p><strong>シルク配置案を作成</strong>すると、現在の<code>F.SilkS</code>／<code>B.SilkS</code>と提案された値を別レイヤーとして重ねて表示します。候補がない場合、所有フットプリント上へ戻して要手動確認とし、遠くへ置いて所属が不明になることを避けます。候補はフットプリント端から既定2.5 mm以内です。チェックボックスで部分採用できます。</p>
+<p>適用前に、極性、1番ピン、警告、認証マーク、部品交換スペースを確認します。JLCPCB向け1.0 mm文字／0.15 mm線幅を採用する場合は、「JLCPCBのシルク可読性制約を適用」を明示的に選びます。</p>
+<h2 id="15-外形最適化">15. 外形最適化</h2>
+<h3 id="15-1-既定方式">15.1 既定方式</h3>
+<ul>
+<li>モード: 斜め辺を許可</li>
+<li>形状戦略: <code>convex_preserve_existing_concavities</code></li>
+<li>目標頂点数: 8</li>
+<li>許容範囲: 4～64</li>
+<li>頂点グリッド: 0.5 mm</li>
+<li>フィレット半径: 1.0 mm</li>
+<li>破壊的置換: 無効</li>
+</ul>
+<p>保護対象の部品、パッド、ビア、配線、取付穴を囲む凸形状を基本にします。元のEdge.Cutsに凹部が存在し、その凹頂点が保護領域と安全条件を満たす場合だけ再挿入します。新しい凹部は既定では作りません。</p>
+<h3 id="15-2-何角形にするか">15.2 何角形にするか</h3>
+<p><code>target_vertex_count</code>で目標頂点数を指定します。安全な凸包の形状、グリッド、保護領域、既存凹部、直交制約により、実際の頂点数が目標と一致しないことがあります。その場合は警告へ目標値と実値を表示します。</p>
+<p>頂点数を増やすと対象へ密着しやすくなりますが、製造・機構レビューが複雑になります。通常は6～12程度から始めます。</p>
+<p>頂点グリッドを有効にした場合、既存辺上に<strong>厳密に存在する格子点</strong>だけを追加します。格子へ丸めた任意の中点で外周を内側へ動かすことはありません。要求した頂点数を安全に満たせない場合は、保護領域を侵すより少ない頂点数を採用して警告します。</p>
+<p>グリッド処理で意図しない凹部が生じた場合は凸包へ戻します。元の外形から保持を許可された凹部以外は、既定方式では残しません。</p>
+<h3 id="15-3-直交モード">15.3 直交モード</h3>
+<p>垂直線と水平線だけにする場合は<code>orthogonal</code>を選びます。斜め辺を許可する場合は<code>diagonal</code>を選び、<code>allow_diagonal_edges</code>を有効にします。</p>
+<h3 id="15-4-gnd外周と適用条件">15.4 GND外周と適用条件</h3>
+<p>提案外周を多点サンプリングし、設定した幅のGND帯を証明できない場合は自動置換を遮断します。面積削減率上限、部品余白、銅箔余白、取付穴保護、フィレット後面積も確認します。さらに、直線ポリゴンだけでなく<strong>フィレット適用後の円弧を含む実輪郭</strong>が全保護対象を囲むことを確認し、必要なら外側へ安全拡張します。安全条件を満たせなければ提案生成を停止します。</p>
+<p>外形画面では頂点グリッドを直接変更でき、<strong>最適化</strong>、<strong>現在形状を滑らかにする</strong>、<strong>現在形状へフィレット</strong>を個別に実行できます。外形プレビューにも基板レイヤーを重ねて確認できます。</p>
+<p>適用には、破壊的置換の有効化、バックアップ、正確な基板名入力、明示確認が必要です。筐体、コネクタ、パネル、治具、アンテナキープアウト、沿面距離は人が確認します。</p>
+<h2 id="16-gndビアステッチング">16. GNDビアステッチング</h2>
+<p><strong>ビアステッチング案を作成</strong>すると、GNDベタの両面接続を確認し、基板外周付近へ過密にならない候補を作ります。既定間隔は5.0 mm、最小間隔は2.5 mmで、頂点付近の候補を優先します。ビアの環状リング全体が対象GND銅箔内にあり、別ネット、パッド、既存ビア、基板端のクリアランスを満たす場合だけ候補になります。</p>
+<p>外周ビアを総修正する場合、削除候補と追加候補をプレビューします。ただし追加候補を部分選択した場合は、既存外周ビアの一括削除を自動的に無効化します。通常のステッチング追加では既存ビアを保持します。</p>
+<h2 id="17-回路ブロックに基づく初期配置">17. 回路ブロックに基づく初期配置</h2>
+<p><strong>初期配置案を作成</strong>は、基板配線開始前のDry-run補助です。回路図シートパスを優先して部品をブロック化し、ロック済み部品を動かさず、コネクタを外周寄りへ配置します。コンデンサと推定される部品は、同じ電源ネットを持つ候補パッドへ近づけ、大きい主要部品を先に配置してブロック内の余白を作ります。</p>
+<p>プレビューには、移動先のフットプリント外形、移動後のパッド、参照番号／値フィールド、回路ブロック枠、<code>参照番号 · 値</code>の識別ラベル、現在位置からの移動矢印を表示します。選択済みと未選択の案も分けて表示するため、中心ドットだけを見て部品を推測する必要はありません。</p>
+<p>これは完全自動配置・自動配線ではありません。回路機能、熱、絶縁、アンテナ、筐体、操作性を確認し、チェックボックスで採用する移動だけを選びます。</p>
+<h2 id="18-jlcpcb製造プロファイル">18. JLCPCB製造プロファイル</h2>
+<h3 id="16-1-低コスト既定">16.1 低コスト既定</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th style="text-align:right">値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>層数</td>
+<td style="text-align:right">2</td>
+</tr>
+<tr>
+<td>板厚</td>
+<td style="text-align:right">1.6 mm</td>
+</tr>
+<tr>
+<td>レジスト</td>
+<td style="text-align:right">緑</td>
+</tr>
+<tr>
+<td>シルク</td>
+<td style="text-align:right">白</td>
+</tr>
+<tr>
+<td>銅厚</td>
+<td style="text-align:right">1 oz</td>
+</tr>
+<tr>
+<td>表面処理</td>
+<td style="text-align:right">有鉛HASL</td>
+</tr>
+<tr>
+<td>配線幅／間隔基準</td>
+<td style="text-align:right">0.20／0.20 mm</td>
+</tr>
+<tr>
+<td>自動修正ビア</td>
+<td style="text-align:right">0.60／0.30 mm</td>
+</tr>
+<tr>
+<td>ルーター端からの銅箔</td>
+<td style="text-align:right">0.30 mm</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-2-製造能力限界">16.2 製造能力限界</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th style="text-align:right">値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>配線幅／間隔</td>
+<td style="text-align:right">0.10／0.10 mm</td>
+</tr>
+<tr>
+<td>ビア外径／穴径</td>
+<td style="text-align:right">0.25／0.15 mm</td>
+</tr>
+<tr>
+<td>環状リング</td>
+<td style="text-align:right">0.05 mm</td>
+</tr>
+<tr>
+<td>ルーター端からの銅箔</td>
+<td style="text-align:right">0.20 mm</td>
+</tr>
+</tbody>
+</table>
+<p>工程限界値は基板全体の推奨値ではありません。小径穴、微細配線、特殊色、板厚、表面処理は価格・納期・歩留まりへ影響します。</p>
+<h3 id="16-3-板厚と色">16.3 板厚と色</h3>
+<p>板厚は0.4、0.6、0.8、1.0、1.2、1.6、2.0 mm、レジスト色は緑、紫、赤、黄、青、白、黒から選択できます。白レジストでは黒シルク、それ以外では白シルクを自動選択します。</p>
+<p>KiCad公開IPCで安全に書き戻せない板厚・色は、Plugin設定、KiCadから読める値との照合、発注設定JSON、注文メモへ反映します。KiCad Board SetupとJLCPCB見積画面にも同じ値を手動設定します。</p>
+<h3 id="16-4-複数配線プリセット">16.4 複数配線プリセット</h3>
+<p>選択可能な配線幅:</p>
+<p><code>0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 5.0 mm</code></p>
+<p>複数選択は「このプロジェクトで使う配線カタログ」を意味します。自動アンテナ修正に使用する1つの幅は、次の順で安全に選びます。</p>
+<ol>
+<li>有効プロファイルの既定幅が選択済みならそれを使用</li>
+<li>それ以外は、選択済みの中でプロファイル最小値を満たす最小幅</li>
+<li>適合する選択がなければプロファイル既定幅へフォールバック</li>
+</ol>
+<p>したがって、低コストプロファイルで0.1 mmと0.2 mmを両方選んでも、自動修正は0.20 mmを使用します。0.1 mmプリセット自体は局所配線用カタログとして保持され、実配線に使えばDFMが警告します。</p>
+<h3 id="16-5-複数ビアプリセット">16.5 複数ビアプリセット</h3>
+<ul>
+<li>JLCPCB製造限界: 0.25 / 0.15 mm</li>
+<li>KiCad 10デフォルト／JLCPCB低コスト: 0.60 / 0.30 mm</li>
+</ul>
+<p>両方を選べます。低コストプロファイルでは自動修正に0.60／0.30 mm、製造能力限界プロファイルでは0.25／0.15 mmを優先します。選択一覧は発注bundleとルーティングプリセットJSONへ保存します。</p>
+<h3 id="16-6-dfmと出力">16.6 DFMと出力</h3>
+<p>DFMは配線幅、異ネット間隔、ビア径・穴・環状リング、穴間隔、端面距離、板厚と表面処理、シルク寸法などを確認します。結果の題名、詳細、推奨対応は日本語UIでは日本語です。</p>
+<p>製造bundle:</p>
+<pre><code class="language-text">jlcpcb-dfm-report.json
+jlcpcb-order-settings.json
+routing-presets.json
+emi-guardian-jlcpcb.kicad_dru
+JLCPCB-ORDER-NOTES.md
+README.txt
+</code></pre>
+<p><code>kicad_dru</code>は雛形です。既存ルールへレビューして統合し、DRCを実行します。</p>
+<h2 id="19-接続維持と長時間放置">19. 接続維持と長時間放置</h2>
+<p>旧版ではローカルダッシュボードが既定60分の無操作監視で終了していたため、長時間放置後にKiCad接続が切れたように見えました。v0.0.2の既定は次です。</p>
+<ul>
+<li>無操作終了: 0分、無効</li>
+<li>KiCadハートビート: 20秒</li>
+<li>IPC再試行: 2回</li>
+</ul>
+<p>ブラウザーは定期的に<code>/api/ping</code>を呼び、KiCad IPCが古くなった場合は既存クライアントを閉じて再接続します。KiCad自体を終了した、基板を閉じた、OSがスリープした、ファイアウォールがlocalhost通信を遮断した場合は一時的に失敗します。KiCadで基板を開き直してから解析を再実行してください。</p>
+<p>無操作終了を必要とする環境では<code>ui.inactivity_timeout_minutes</code>へ正数を設定できます。</p>
+<h2 id="20-実行速度">20. 実行速度</h2>
+<p>v0.0.2では次を最適化しています。</p>
+<ul>
+<li>パッド／ビア近傍検索を全件走査から均一グリッド索引へ変更</li>
+<li>平行配線指摘の空間重複抑制</li>
+<li>長配線をネット接続成分単位で処理</li>
+<li>プレビューの件数上限と遅延描画</li>
+<li>解析ステージごとの実行時間計測</li>
+<li>アンテナラスタの最大セル数1,500,000</li>
+</ul>
+<p>レポートの統計にはステージ時間を含めます。遅い場合は、アンテナの<code>raster_step_mm</code>を大きくする、不要な高密度ゾーンを整理する、プレビュー用レイヤーを減らす、対象基板を保存してKiCadを再起動する方法が有効です。</p>
+<p>ラスタ刻みを大きくすると高速になりますが、細いGND形状を見落とす可能性が上がります。速度と感度を同時に最大化することはできません。</p>
+<h2 id="21-定量評価">21. 定量評価</h2>
+<p>表示する一次近似:</p>
+<ul>
+<li>マイクロストリップ／ストリップライン特性インピーダンス</li>
+<li>実効比誘電率</li>
+<li>伝搬速度と遅延</li>
+<li>立上り時間からの臨界長</li>
+<li>1/4波長共振周波数</li>
+<li>銅の表皮深さ</li>
+<li>平行配線の正規化結合proxy</li>
+</ul>
+<p>外部ソルバ用出力は形状、レイヤー、ネット、材料仮定、単位を渡します。ポート、励振、終端、ケーブル、筐体、境界条件、メッシュ収束を自動確定しないため、出力しただけでは電磁界解析済みではありません。</p>
+<h2 id="22-設定リファレンスの要点">22. 設定リファレンスの要点</h2>
+<h3 id="20-1-一般">20.1 一般</h3>
+<ul>
+<li><code>fixes.dry_run</code>: 書き込み禁止</li>
+<li><code>fixes.minimum_apply_confidence</code>: 自動適用下限</li>
+<li><code>ui.language</code>: <code>auto</code>, <code>ja</code>, <code>en</code></li>
+<li><code>ui.inactivity_timeout_minutes</code>: 0で無効</li>
+<li><code>ui.heartbeat_seconds</code>: 接続確認周期</li>
+<li><code>ui.ipc_retry_count</code>: 再接続回数</li>
+</ul>
+<h3 id="20-2-アンテナ">20.2 アンテナ</h3>
+<ul>
+<li>GNDネット正規表現</li>
+<li>ラスタ刻みと最大セル数</li>
+<li>狭い首幅、必要接続幅<code>t</code></li>
+<li>パッド／ビア／明示配線の保護余白、保護外周GND幅</li>
+<li>最小突起長、アンカー距離</li>
+<li>共振周波数目標、実効比誘電率、近傍アグレッサ距離</li>
+</ul>
+<h3 id="20-3-ノイズ">20.3 ノイズ</h3>
+<ul>
+<li>平行角度、間隔、重なり長</li>
+<li>鋭角閾値とパッド除外</li>
+<li>配線長、立上り時間、臨界長係数、長配線モード、最長経路の探索上限</li>
+<li>2層基板の基準面欠損最小長、欠損率、端点除外長</li>
+<li>GND帰路迂回の最小比率と超過長</li>
+<li>基板端信号距離</li>
+<li>差動対名と長さ差</li>
+</ul>
+<h3 id="20-4-外形">20.4 外形</h3>
+<ul>
+<li><code>mode</code>: <code>orthogonal</code>または<code>diagonal</code></li>
+<li><code>outline_strategy</code>: 既定<code>convex_preserve_existing_concavities</code></li>
+<li><code>target_vertex_count</code>: 4～64</li>
+<li><code>grid_mm</code>, <code>fillet_radius_mm</code></li>
+<li>部品／銅箔余白、GND帯、面積削減上限</li>
+</ul>
+<p>詳細JSONでは全項目を編集できます。不正値は保存時に拒否されます。設定スキーマは5です。</p>
+<h2 id="23-レポートとデータ保持">23. レポートとデータ保持</h2>
+<p>HTML、JSON、Markdownレポートは、スコア、指摘、日英表示、証拠、修正案、シルク案、外形案、定量評価、DFM、仮定、処理時間を含みます。設計レビューの記録としてバージョン管理へ入れる場合、基板名やネット名など機密情報が含まれないか確認してください。</p>
+<p>Plugin設定とレポートはアンインストール時に既定では保持されます。インストーラーは旧Pluginのバックアップを作成せず、旧版が残したバックアップフォルダーも削除します。</p>
+<h2 id="24-トラブルシューティング">24. トラブルシューティング</h2>
+<h3 id="折れ角スコアが低い">折れ角スコアが低い</h3>
+<p>詳細を開いて角度を確認します。90°が指摘される場合は、古いv0.2.xが起動していないか、Plugin環境を更新したかを確認します。v0.0.2の既定閾値は75°です。実際の45°未満の鋭角が多い場合は配線を修正します。</p>
+<h3 id="鋭角を検出しない">鋭角を検出しない</h3>
+<p>頂点がパッド／ビア除外範囲、分岐点、短セグメント、円弧近似内にないか確認します。必要に応じてパッド除外余白または最小セグメント長を小さくします。</p>
+<h3 id="長配線が多すぎる">長配線が多すぎる</h3>
+<p>実際の立上り時間、<code>long_net_trigger_mode</code>、電源除外正規表現、50 mm閾値を確認します。ネット全枝の総長ではなく推定最大端点経路を表示していることを確認します。</p>
+<h3 id="kicadで場所を表示してもズームしない">KiCadで場所を表示してもズームしない</h3>
+<p>アイテムが選択されていれば、KiCadアクション名の互換性だけが不足している可能性があります。手動で選択範囲へズームします。選択件数が0なら、解析後に基板を大きく編集してIDが変わった可能性があるため、再解析します。</p>
+<h3 id="長時間後に接続できない">長時間後に接続できない</h3>
+<p>KiCadと基板が開いていること、ブラウザータブが同じセッションであること、OSスリープ解除後であることを確認し、解析を再実行します。設定のハートビートと再試行回数を確認します。</p>
+<h3 id="配線-ビアを複数選べない">配線／ビアを複数選べない</h3>
+<p>v0.0.2ではチェックボックスで複数選択できます。単一選択UIなら旧版のWeb資産がキャッシュされている可能性があります。Pluginを更新し、ブラウザーを強制再読み込みします。</p>
+<h3 id="シルクまたは修正案が見えない">シルクまたは修正案が見えない</h3>
+<p>先に対応する「案を作成」を実行し、プレビューの「修正案」「シルク案」レイヤーをオンにします。</p>
+<h3 id="dfmエラーが多い">DFMエラーが多い</h3>
+<p>低コストプロファイルは加工限界より保守的です。能力限界寸法は局所ネットクラスとして検討し、基板全体の自動修正寸法は低コスト基準を維持することを推奨します。</p>
+<h2 id="25-発注前チェックリスト">25. 発注前チェックリスト</h2>
+<ol>
+<li>基板を保存し、バックアップまたはGitコミットを作成した。</li>
+<li>KiCadとPluginの層数、板厚、色、銅厚、表面処理が一致する。</li>
+<li>JLCPCB DFMエラーを解消し、警告理由を確認した。</li>
+<li>EMI指摘をKiCad上で確認した。</li>
+<li>自動対策を設計意図と照合した。</li>
+<li>ゾーンを再塗りつぶした。</li>
+<li>KiCad DRCが許容状態である。</li>
+<li>Gerber、ドリル、Edge.Cuts、マスク、シルクを確認した。</li>
+<li>コネクタ、取付穴、筐体、面付け、Vカットを確認した。</li>
+<li>JLCPCBアップロード後DFMと最新見積を確認した。</li>
+<li>必要なEMC／SI測定計画を用意した。</li>
+</ol>
+<h2 id="26-githubへ公開する">26. GitHubへ公開する</h2>
+<p>完全な手順は<a href="github-release.md">GitHubへの公開手順</a>を参照してください。要点:</p>
+<pre><code class="language-bash">git init
+git branch -M main
+git add .
+git commit -m &quot;Release EMI Guardian v0.0.2&quot;
+git remote add origin https://github.com/&lt;USER_OR_ORG&gt;/kicad-emi-guardian.git
+git push -u origin main
+git tag -a v0.0.2 -m &quot;EMI Guardian v0.0.2&quot;
+git push origin v0.0.2
+</code></pre>
+<p>GitHub ReleaseにはOS別インストーラー、手動版、PCM版、ソース、取扱説明書、<code>SHA256SUMS</code>、<code>BUILD-INFO.json</code>を添付します。</p>
+<h2 id="27-制限事項">27. 制限事項</h2>
+<ul>
+<li>静的な基板形状だけから、全物理放射源を完全に検出できません。</li>
+<li>GNDゾーン検出は塗りつぶし形状とラスタ解像度に依存します。</li>
+<li>選択＋ズームは永続DRCマーカーではありません。</li>
+<li>KiCad内部アクション名は安定APIではなく、自動ズームが将来使えなくなる可能性があります。</li>
+<li>板厚・色・プロジェクトルールは公開IPCの安全な書き込み範囲を超えるため、照合・出力方式です。</li>
+<li>外形最適化は筐体や人間の機構意図を理解しません。</li>
+<li>JLCPCB能力と料金は変更されます。</li>
+<li>本環境の自動試験はライブKiCad GUI、実機EMC、製造受入を置き換えません。</li>
+</ul>
+<h2 id="28-参照先">28. 参照先</h2>
+<ul>
+<li>JLCPCB PCB Capabilities: https://jlcpcb.com/jp/capabilities/PCB</li>
+<li>JLCPCB Quote: https://cart.jlcpcb.com/jp/quote</li>
+<li>KiCad 10 PCB Editor Manual: https://docs.kicad.org/10.0/ja/pcbnew/pcbnew.html</li>
+<li>KiCad IPC API: https://dev-docs.kicad.org/en/apis-and-binding/ipc-api/</li>
+<li>kicad-python: https://docs.kicad.org/kicad-python-main/</li>
+<li>GitHub Actions: https://docs.github.com/actions</li>
+<li>GitHub Releases: https://docs.github.com/repositories/releasing-projects-on-github</li>
+</ul>
+<hr />
+<p>この取扱説明書とPlugin内のJLCPCB値は2026-08-13時点の公開情報を基礎にしています。製造発注直前に公式情報を再確認してください。</p>
+
+<footer>EMI Guardian 0.0.2 · Pre-release engineering preview · Generated from the bilingual source documentation.</footer>
+</main>
+</div>
+</body>
+</html>

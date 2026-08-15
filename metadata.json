@@ -1,0 +1,35 @@
+{
+  "$schema": "https://go.kicad.org/pcm/schemas/v2",
+  "name": "EMI Guardian",
+  "description": "Bilingual EMI review with protected GND-backbone analysis, JLCPCB 2-layer DFM, interactive previews, and conservative KiCad 10 PCB cleanup.",
+  "description_full": "EMI Guardian 0.0.2 is a pre-release engineering build for KiCad 10.0.5 and later. Its ground-pour antenna detector preserves every physical pad, same-net GND pad/via/explicit trace, existing perimeter GND, and a configurable width-t connection to the broad ground core; only residual copper that passes a current-board connectivity proof can receive an exact shape-matched copper-pour keepout proposal. Proposed tracks and vias are checked with their full copper width or annulus against outer Edge.Cuts, internal cutouts, and other-net copper. The build also includes relaxed two-layer return-path screening, JLCPCB manufacturability checks, silkscreen planning, via stitching, full-geometry schematic-block initial-placement previews, bilingual finding details, KIID-based selection-and-zoom navigation, partial proposal adoption, dry-run-by-default mutations, and Windows/macOS/Linux installers that create no old-plugin backup and remove legacy backup or staging directories under KiCad plugins. Results are engineering screening evidence and still require live KiCad, DRC, Gerber, manufacturing, mechanical, and EMC review before fabrication.",
+  "identifier": "openai-emi-guardian",
+  "type": "plugin",
+  "author": {
+    "name": "Ryo Nishikawa and EMI Guardian contributors",
+    "contact": {}
+  },
+  "license": "MIT",
+  "resources": {},
+  "tags": [
+    "pcb",
+    "emi",
+    "analysis",
+    "ipc",
+    "jlcpcb",
+    "dfm"
+  ],
+  "versions": [
+    {
+      "version": "0.0.2",
+      "status": "testing",
+      "platforms": [
+        "windows",
+        "macos",
+        "linux"
+      ],
+      "runtime": "ipc",
+      "kicad_version": "10.0.5"
+    }
+  ]
+}

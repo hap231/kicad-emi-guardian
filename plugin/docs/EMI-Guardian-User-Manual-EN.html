@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMI Guardian 0.0.2 User Manual</title>
+<style>
+:root { color-scheme: light dark; --bg:#f4f6f8; --surface:#ffffff; --text:#17202a; --muted:#5d6874; --line:#d8dee6; --accent:#0b6bcb; --accent-soft:#e7f2ff; --code:#eef2f6; --warn:#fff4d6; --shadow:0 12px 40px rgba(15,35,55,.10); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:Inter, "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.72; }
+a { color:var(--accent); text-decoration-thickness:.08em; text-underline-offset:.16em; }
+.layout { display:grid; grid-template-columns:minmax(240px,300px) minmax(0,920px); gap:28px; justify-content:center; padding:28px; }
+.sidebar { position:sticky; top:20px; align-self:start; max-height:calc(100vh - 40px); overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:22px; }
+.brand { font-size:1.18rem; font-weight:760; letter-spacing:-.02em; margin-bottom:4px; }
+.version { color:var(--muted); font-size:.88rem; margin-bottom:18px; }
+.sidebar h2 { font-size:.86rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border:0; margin:0 0 10px; padding:0; }
+.sidebar ul { list-style:none; margin:0; padding:0; }
+.sidebar li { margin:0; }
+.sidebar a { display:block; padding:6px 8px; border-radius:9px; color:var(--text); text-decoration:none; font-size:.9rem; }
+.sidebar a:hover { background:var(--accent-soft); color:var(--accent); }
+.sidebar .toc-subitem a { padding-left:22px; color:var(--muted); font-size:.84rem; }
+main { min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:clamp(28px,6vw,68px); }
+.notice { background:var(--warn); border:1px solid #e5c66d; border-radius:14px; padding:14px 16px; margin:0 0 30px; font-weight:620; }
+h1 { font-size:clamp(2rem,5vw,3.25rem); line-height:1.12; letter-spacing:-.04em; margin:.1em 0 .8em; }
+h2 { font-size:1.55rem; line-height:1.3; margin:2.2em 0 .7em; padding-bottom:.35em; border-bottom:1px solid var(--line); scroll-margin-top:22px; }
+h3 { font-size:1.16rem; margin:1.7em 0 .45em; scroll-margin-top:22px; }
+h4 { font-size:1rem; margin:1.35em 0 .35em; }
+p, ul, ol { margin:.75em 0 1.1em; }
+li + li { margin-top:.32em; }
+blockquote { margin:1.4em 0; border-left:4px solid var(--accent); background:var(--accent-soft); padding:12px 18px; border-radius:0 12px 12px 0; }
+code { background:var(--code); border:1px solid var(--line); border-radius:6px; padding:.12em .35em; font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size:.9em; }
+pre { overflow:auto; background:#121820; color:#edf4fb; border-radius:14px; padding:18px; line-height:1.5; }
+pre code { background:transparent; border:0; padding:0; color:inherit; }
+table { width:100%; border-collapse:separate; border-spacing:0; margin:1.2em 0 1.7em; border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:.94rem; }
+th, td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+th { background:var(--code); font-weight:700; }
+tr:last-child td { border-bottom:0; }
+th:last-child, td:last-child { border-right:0; }
+hr { border:0; border-top:1px solid var(--line); margin:2.5em 0; }
+footer { color:var(--muted); border-top:1px solid var(--line); margin-top:3.5em; padding-top:1.4em; font-size:.86rem; }
+@media (max-width:900px) { .layout { grid-template-columns:1fr; padding:14px; } .sidebar { position:relative; top:0; max-height:none; } main { padding:28px 22px; } }
+@media print { :root { --bg:#fff; --surface:#fff; --text:#000; --muted:#444; --line:#bbb; } .layout { display:block; padding:0; } .sidebar { display:none; } main { border:0; box-shadow:none; border-radius:0; padding:0; } a { color:inherit; text-decoration:none; } h2, h3 { break-after:avoid; } table, pre, blockquote { break-inside:avoid; } }
+@media (prefers-color-scheme:dark) { :root { --bg:#0f141a; --surface:#171e26; --text:#e8edf2; --muted:#a8b3bf; --line:#34404c; --accent:#7db8ff; --accent-soft:#172d45; --code:#222c36; --warn:#3a3019; --shadow:0 12px 40px rgba(0,0,0,.30); } }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" aria-label="Contents">
+<div class="brand">EMI Guardian</div>
+<div class="version">Version 0.0.2</div>
+<h2>Contents</h2>
+<ul><li class="toc-item"><a href="#1-purpose">1. Purpose</a></li>
+<li class="toc-item"><a href="#2-safety-essentials">2. Safety essentials</a></li>
+<li class="toc-item"><a href="#3-install-update-and-uninstall">3. Install, update, and uninstall</a></li>
+<li class="toc-subitem"><a href="#3-1-before-running-an-installer">3.1 Before running an installer</a></li>
+<li class="toc-subitem"><a href="#3-2-windows">3.2 Windows</a></li>
+<li class="toc-subitem"><a href="#3-3-macos">3.3 macOS</a></li>
+<li class="toc-subitem"><a href="#3-4-linux">3.4 Linux</a></li>
+<li class="toc-subitem"><a href="#3-5-manual-installation">3.5 Manual installation</a></li>
+<li class="toc-item"><a href="#4-kicad-settings-and-launch-location">4. KiCad settings and launch location</a></li>
+<li class="toc-subitem"><a href="#4-1-enable-the-api">4.1 Enable the API</a></li>
+<li class="toc-subitem"><a href="#4-2-launch">4.2 Launch</a></li>
+<li class="toc-subitem"><a href="#4-3-plugin-does-not-appear">4.3 Plugin does not appear</a></li>
+<li class="toc-item"><a href="#5-interface-language-and-blue-theme">5. Interface, language, and blue theme</a></li>
+<li class="toc-item"><a href="#6-recommended-first-workflow">6. Recommended first workflow</a></li>
+<li class="toc-item"><a href="#7-board-preview">7. Board preview</a></li>
+<li class="toc-subitem"><a href="#7-1-zoom-and-pan">7.1 Zoom and pan</a></li>
+<li class="toc-subitem"><a href="#7-2-layer-controls">7.2 Layer controls</a></li>
+<li class="toc-subitem"><a href="#7-3-large-board-limits">7.3 Large-board limits</a></li>
+<li class="toc-item"><a href="#8-showing-a-finding-in-kicad">8. Showing a finding in KiCad</a></li>
+<li class="toc-item"><a href="#9-understanding-scores">9. Understanding scores</a></li>
+<li class="toc-item"><a href="#10-sharp-trace-corner-screening">10. Sharp trace corner screening</a></li>
+<li class="toc-subitem"><a href="#10-1-default-behavior">10.1 Default behavior</a></li>
+<li class="toc-subitem"><a href="#10-2-tuning">10.2 Tuning</a></li>
+<li class="toc-item"><a href="#11-electrically-long-routed-net-screening">11. Electrically long routed net screening</a></li>
+<li class="toc-subitem"><a href="#11-1-route-path-estimate">11.1 Route-path estimate</a></li>
+<li class="toc-subitem"><a href="#11-2-defaults">11.2 Defaults</a></li>
+<li class="toc-subitem"><a href="#11-3-tuning-guidance">11.3 Tuning guidance</a></li>
+<li class="toc-item"><a href="#12-other-qualitative-checks">12. Other qualitative checks</a></li>
+<li class="toc-item"><a href="#13-ground-pour-detection-and-fix-preview">13. Ground-pour detection and fix preview</a></li>
+<li class="toc-subitem"><a href="#13-1-detection">13.1 Detection</a></li>
+<li class="toc-subitem"><a href="#13-2-candidate-actions">13.2 Candidate actions</a></li>
+<li class="toc-subitem"><a href="#13-3-preview">13.3 Preview</a></li>
+<li class="toc-subitem"><a href="#13-4-apply">13.4 Apply</a></li>
+<li class="toc-item"><a href="#14-silkscreen-cleanup-and-preview">14. Silkscreen cleanup and preview</a></li>
+<li class="toc-item"><a href="#15-board-outline-optimization">15. Board-outline optimization</a></li>
+<li class="toc-subitem"><a href="#15-1-default-strategy">15.1 Default strategy</a></li>
+<li class="toc-subitem"><a href="#15-2-target-polygon-side-count">15.2 Target polygon side count</a></li>
+<li class="toc-subitem"><a href="#15-3-orthogonal-mode">15.3 Orthogonal mode</a></li>
+<li class="toc-subitem"><a href="#15-4-ground-perimeter-and-application-gates">15.4 Ground perimeter and application gates</a></li>
+<li class="toc-item"><a href="#16-gnd-via-stitching">16. GND via stitching</a></li>
+<li class="toc-item"><a href="#17-schematic-block-initial-placement">17. Schematic-block initial placement</a></li>
+<li class="toc-item"><a href="#18-jlcpcb-manufacturing-profiles">18. JLCPCB manufacturing profiles</a></li>
+<li class="toc-subitem"><a href="#16-1-economy-default">16.1 Economy default</a></li>
+<li class="toc-subitem"><a href="#16-2-capability-limit">16.2 Capability limit</a></li>
+<li class="toc-subitem"><a href="#16-3-thickness-and-color">16.3 Thickness and color</a></li>
+<li class="toc-subitem"><a href="#16-4-multiple-track-width-presets">16.4 Multiple track-width presets</a></li>
+<li class="toc-subitem"><a href="#16-5-multiple-via-presets">16.5 Multiple via presets</a></li>
+<li class="toc-subitem"><a href="#16-6-dfm-and-exports">16.6 DFM and exports</a></li>
+<li class="toc-item"><a href="#19-long-idle-connection-behavior">19. Long-idle connection behavior</a></li>
+<li class="toc-item"><a href="#20-performance">20. Performance</a></li>
+<li class="toc-item"><a href="#21-quantitative-estimates">21. Quantitative estimates</a></li>
+<li class="toc-item"><a href="#22-configuration-summary">22. Configuration summary</a></li>
+<li class="toc-subitem"><a href="#20-1-general">20.1 General</a></li>
+<li class="toc-subitem"><a href="#20-2-antenna">20.2 Antenna</a></li>
+<li class="toc-subitem"><a href="#20-3-noise">20.3 Noise</a></li>
+<li class="toc-subitem"><a href="#20-4-outline">20.4 Outline</a></li>
+<li class="toc-item"><a href="#23-reports-and-retained-data">23. Reports and retained data</a></li>
+<li class="toc-item"><a href="#24-troubleshooting">24. Troubleshooting</a></li>
+<li class="toc-subitem"><a href="#corner-score-is-unexpectedly-low">Corner score is unexpectedly low</a></li>
+<li class="toc-subitem"><a href="#a-real-acute-corner-is-missed">A real acute corner is missed</a></li>
+<li class="toc-subitem"><a href="#too-many-long-route-findings">Too many long-route findings</a></li>
+<li class="toc-subitem"><a href="#kicad-selection-works-but-zoom-does-not">KiCad selection works but zoom does not</a></li>
+<li class="toc-subitem"><a href="#connection-fails-after-a-long-pause">Connection fails after a long pause</a></li>
+<li class="toc-subitem"><a href="#presets-are-still-single-select">Presets are still single-select</a></li>
+<li class="toc-subitem"><a href="#fix-or-silk-overlay-is-missing">Fix or silk overlay is missing</a></li>
+<li class="toc-subitem"><a href="#dfm-is-too-strict">DFM is too strict</a></li>
+<li class="toc-item"><a href="#25-pre-order-checklist">25. Pre-order checklist</a></li>
+<li class="toc-item"><a href="#26-publishing-on-github">26. Publishing on GitHub</a></li>
+<li class="toc-item"><a href="#27-limitations">27. Limitations</a></li>
+<li class="toc-item"><a href="#28-references">28. References</a></li></ul>
+</aside>
+<main>
+<div class="notice">JLCPCB capabilities and pricing can change. Confirm the live quote and DFM result before ordering.</div>
+<h1 id="emi-guardian-0-0-2-user-manual">EMI Guardian 0.0.2 User Manual</h1>
+<p><strong>Target:</strong> KiCad 10.0.5 and later
+<strong>Python:</strong> 3.9 and later
+<strong>Primary board type:</strong> Two-layer FR-4
+<strong>Document version:</strong> 0.0.2
+<strong>JLCPCB public information verified:</strong> 2026-08-13</p>
+<hr />
+<h2 id="1-purpose">1. Purpose</h2>
+<p>EMI Guardian reads the board currently open in PCB Editor through KiCad's public IPC API and presents the following workflows in a form intended to help both experienced designers and beginners:</p>
+<ol>
+<li>Detection of narrow ground-pour appendages, weak necks, isolated islands, and distant ground anchors</li>
+<li>Remediation proposals using same-net ground tracks, stitching vias, track-plus-via combinations, and copper-pour keepout rule areas</li>
+<li>Qualitative screening for stubs, parallel coupling, acute corners, route length, return-via gaps, board-edge proximity, and differential mismatch</li>
+<li>First-order estimates for propagation delay, critical length, quarter-wave resonance, impedance, and skin depth</li>
+<li>Silkscreen cleanup that hides references and places component values where they remain readable</li>
+<li>Convex-first Edge.Cuts proposals that may retain only safe concavities already present in the original outline</li>
+<li>JLCPCB two-layer economy and capability-limit profiles with geometric DFM pre-checks</li>
+<li>Install, update, and uninstall workflows for Windows, macOS, and Linux</li>
+</ol>
+<p>This plugin is an engineering screening tool. A clean report is not proof that a board has no EMI, EMC, signal-integrity, or manufacturing problem. Final validation requires KiCad DRC, Gerber review, manufacturer DFM, and—where applicable—oscilloscope, TDR, near-field, EMC, or electromagnetic-solver work.</p>
+<h2 id="2-safety-essentials">2. Safety essentials</h2>
+<ul>
+<li>Keep <strong>Dry-run</strong> enabled for the first review.</li>
+<li>Antenna repair, silkscreen edits, and Edge.Cuts replacement require a proposal, preview, explicit confirmation, and enabled write controls.</li>
+<li>Ground repairs never join different net names such as GND and AGND. They still cannot understand every isolation, current-sense, RF, or mixed-signal design intent.</li>
+<li>Edge.Cuts replacement is mechanically destructive. Test it on a copy of the board.</li>
+<li>Refill zones and run KiCad DRC after every copper or outline change. Inspect Gerbers, drill data, mask, and silkscreen before fabrication.</li>
+<li>The JLCPCB economy profile is a no-known-surcharge engineering baseline, not a price guarantee.</li>
+</ul>
+<h2 id="3-install-update-and-uninstall">3. Install, update, and uninstall</h2>
+<h3 id="3-1-before-running-an-installer">3.1 Before running an installer</h3>
+<p>Close PCB Editor, the KiCad project manager, and every other KiCad process. Save the board and create a version-control or file backup.</p>
+<p>The platform scripts install only for the current user and do not require administrator privileges. They create <strong>no installer backup</strong> of the old plugin, including in the operating-system temporary directory. The new payload is staged and checked first, then the old destination is removed and replaced. If final placement fails, the incomplete destination is deleted and the installer must be run again; automatic rollback is intentionally disabled. Legacy <code>_emi-guardian-backups</code> and stale staging directories are removed. The managed plugin Python environment is also removed so KiCad can recreate a consistent environment on the next launch. Normal uninstall preserves user settings and reports.</p>
+<h3 id="3-2-windows">3.2 Windows</h3>
+<ol>
+<li>Extract <code>emi-guardian-0.0.2-windows-installer.zip</code>.</li>
+<li>Double-click <code>Install-or-Update.cmd</code>.</li>
+<li>Review any Windows security prompt and verify the source before continuing.</li>
+<li>Start KiCad after completion.</li>
+</ol>
+<p>Use the same launcher for updates. Run <code>Uninstall.cmd</code> to remove the plugin.</p>
+<p>Direct PowerShell invocation:</p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File .\install-or-update.ps1
+powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+</code></pre>
+<p>Default location:</p>
+<pre><code class="language-text">&lt;Documents&gt;\KiCad\10.0\plugins\emi-guardian\plugin.json
+</code></pre>
+<p>The script asks Windows for the actual Documents folder, including OneDrive-redirection cases.</p>
+<h3 id="3-3-macos">3.3 macOS</h3>
+<ol>
+<li>Extract <code>emi-guardian-0.0.2-macos-installer.zip</code>.</li>
+<li>Run <code>install-or-update.command</code>.</li>
+<li>If the executable bit was removed, use Terminal:</li>
+</ol>
+<pre><code class="language-bash">chmod +x install-or-update.command uninstall.command
+./install-or-update.command
+</code></pre>
+<p>Uninstall:</p>
+<pre><code class="language-bash">./uninstall.command
+</code></pre>
+<p>Default location:</p>
+<pre><code class="language-text">~/Documents/KiCad/10.0/plugins/emi-guardian/plugin.json
+</code></pre>
+<h3 id="3-4-linux">3.4 Linux</h3>
+<pre><code class="language-bash">unzip emi-guardian-0.0.2-linux-installer.zip
+cd emi-guardian-0.0.2-linux
+chmod +x install-or-update.sh uninstall.sh
+./install-or-update.sh
+</code></pre>
+<p>Uninstall:</p>
+<pre><code class="language-bash">./uninstall.sh
+</code></pre>
+<p>Default location:</p>
+<pre><code class="language-text">~/.local/share/KiCad/10.0/plugins/emi-guardian/plugin.json
+</code></pre>
+<h3 id="3-5-manual-installation">3.5 Manual installation</h3>
+<p>Extract the <code>emi-guardian</code> directory from <code>emi-guardian-0.0.2-manual-install.zip</code> into the operating system's KiCad <code>plugins</code> directory. The final depth must be:</p>
+<pre><code class="language-text">plugins/
+└── emi-guardian/
+    ├── plugin.json
+    ├── open_dashboard.py
+    ├── quick_scan.py
+    ├── requirements.txt
+    ├── default-config.json
+    └── emi_guardian/
+</code></pre>
+<p>These are incorrect:</p>
+<pre><code class="language-text">plugins/emi-guardian/emi-guardian/plugin.json
+plugins/emi-guardian-0.0.2-manual-install/emi-guardian/plugin.json
+</code></pre>
+<h2 id="4-kicad-settings-and-launch-location">4. KiCad settings and launch location</h2>
+<h3 id="4-1-enable-the-api">4.1 Enable the API</h3>
+<p>Open the KiCad-wide preferences page:</p>
+<pre><code class="language-text">Preferences / Settings
+└── Preferences...
+    └── Plugins
+</code></pre>
+<p>Confirm:</p>
+<ul>
+<li><strong>Enable KiCad API</strong> is on</li>
+<li>A Python interpreter is configured</li>
+<li>Python is version 3.9 or later</li>
+</ul>
+<p>Completely restart KiCad, then open a <code>.kicad_pcb</code> file in PCB Editor. On first discovery KiCad creates the plugin-specific environment and installs the dependencies from <code>requirements.txt</code>.</p>
+<h3 id="4-2-launch">4.2 Launch</h3>
+<p>In PCB Editor choose:</p>
+<pre><code class="language-text">Tools
+└── External Plugins
+    ├── Open EMI Guardian
+    └── Quick EMI Scan
+</code></pre>
+<p>Use <strong>Open EMI Guardian</strong> for the normal dashboard. It opens a local <code>127.0.0.1</code> page in the default browser; it is not an Internet-hosted service.</p>
+<p><code>Quick EMI Scan</code> is a read-only convenience action.</p>
+<h3 id="4-3-plugin-does-not-appear">4.3 Plugin does not appear</h3>
+<ol>
+<li>Verify <code>plugins/emi-guardian/plugin.json</code>.</li>
+<li>Verify the KiCad-wide API and Python settings.</li>
+<li>Fully close and restart KiCad.</li>
+<li>Open the plugin warning indicator at the lower right of PCB Editor.</li>
+<li>Look for messages containing <code>Python interpreter</code>, <code>Failed to create plugin environment</code>, <code>Failed to install</code>, or <code>kicad-python</code>.</li>
+<li>Re-running the installer replaces the current plugin, removes any legacy backup/staging folders below <code>plugins</code>, and forces the managed environment to be rebuilt. No copy of the previous plugin is created for rollback.</li>
+</ol>
+<h2 id="5-interface-language-and-blue-theme">5. Interface, language, and blue theme</h2>
+<p>Version 0.0.2 uses a blue visual system. When Japanese is selected, menus, finding titles, descriptions, recommendations, category labels, measurement labels, and JLCPCB DFM details are all presented in Japanese. Saved reports retain both Japanese and English presentation data.</p>
+<p>Main views:</p>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>Overall/category scores, board preview, finding list</td>
+</tr>
+<tr>
+<td>Antenna fixes</td>
+<td>Build, compare, preview, and apply ground-remediation proposals</td>
+</tr>
+<tr>
+<td>Silkscreen cleanup</td>
+<td>Plan component-value placement and compare with existing silk</td>
+</tr>
+<tr>
+<td>Outline optimizer</td>
+<td>Convex-first outline, target vertex count, fillets, and ground-band evidence</td>
+</tr>
+<tr>
+<td>JLCPCB manufacturing</td>
+<td>Thickness, color, routing/via presets, DFM, and order bundle</td>
+</tr>
+<tr>
+<td>Quantitative</td>
+<td>Fast first-order estimates and solver exchange data</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>All thresholds, safety controls, connection controls, and advanced JSON</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-recommended-first-workflow">6. Recommended first workflow</h2>
+<ol>
+<li>Save the board and create a backup or Git commit.</li>
+<li>Launch the plugin and confirm Dry-run is enabled.</li>
+<li>Choose the intended thickness, color, and finish in JLCPCB Manufacturing.</li>
+<li>Apply the JLCPCB two-layer economy profile unless there is a specific reason not to.</li>
+<li>Select one or more track widths and one or more via presets.</li>
+<li>Run the manufacturing DFM check.</li>
+<li>Run the board analysis from the dashboard.</li>
+<li>Click findings to inspect evidence and preview position.</li>
+<li>Use <strong>Show location in KiCad</strong> for items requiring board-level review.</li>
+<li>Build antenna, silkscreen, and outline proposals and inspect their dedicated previews.</li>
+<li>Apply changes only to a board copy, then run DRC and review Gerbers.</li>
+</ol>
+<h2 id="7-board-preview">7. Board preview</h2>
+<h3 id="7-1-zoom-and-pan">7.1 Zoom and pan</h3>
+<p>Each interactive preview supports:</p>
+<ul>
+<li><strong>Fit:</strong> restore the full-board view</li>
+<li><strong>Zoom in/out:</strong> button-controlled steps</li>
+<li><strong>Mouse wheel or trackpad:</strong> zoom around the pointer</li>
+<li><strong>Drag:</strong> pan the visible region</li>
+<li><strong>Finding marker click:</strong> open the finding details</li>
+</ul>
+<p>Zoom limits prevent the drawing from becoming irretrievably tiny or unboundedly large.</p>
+<h3 id="7-2-layer-controls">7.2 Layer controls</h3>
+<p>Controls are generated from layers present on the board. Typical choices include:</p>
+<ul>
+<li><code>F.Cu</code>, <code>B.Cu</code>, and internal copper layers</li>
+<li><code>F.SilkS</code>, <code>B.SilkS</code></li>
+<li><code>Edge.Cuts</code></li>
+<li>Pads</li>
+<li>Vias</li>
+<li>Footprint bounding boxes</li>
+<li>Findings</li>
+<li>Fix Preview</li>
+<li>Silk Preview</li>
+</ul>
+<p><strong>All</strong> and <strong>Hide all</strong> are also available. Zones are drawn from filled polygons, tracks are width-aware lines, and pads/vias are simplified geometry.</p>
+<h3 id="7-3-large-board-limits">7.3 Large-board limits</h3>
+<p>To keep the browser responsive, preview payloads are bounded to 5,000 tracks, 5,000 pads, 3,000 vias, 2,500 footprints, 100 zones, and related polygon limits. Truncation counts are retained in the payload. These limits do not necessarily limit the analysis core itself.</p>
+<h2 id="8-showing-a-finding-in-kicad">8. Showing a finding in KiCad</h2>
+<p>Press <strong>Show location in KiCad</strong> on a finding card or in the details dialog. The plugin attempts to:</p>
+<ol>
+<li>Resolve the KiCad item identifiers used as evidence</li>
+<li>Clear the old selection</li>
+<li>Select the evidence items</li>
+<li>Activate the relevant layer when available</li>
+<li>Request KiCad's zoom-to-selection action</li>
+</ol>
+<p>KiCad 10's public IPC does not expose stable creation of plugin-defined persistent DRC markers. Version 0.0.2 therefore uses non-destructive <strong>selection plus zoom</strong>. KiCad's action identifiers are not a stable API guarantee, so a future KiCad build may still select the items while declining the automatic zoom. Use PCB Editor's manual zoom-to-selection command in that case.</p>
+<p>Raster-derived ground-pour findings may correspond to a location or related board objects rather than one exact KiCad item.</p>
+<h2 id="9-understanding-scores">9. Understanding scores</h2>
+<p>Overall and category scores range from 0 to 100. Higher values mean fewer geometry-based concerns. Version 0.0.2 replaces unbounded linear accumulation that could pin the corner category at zero with bounded, diminishing impact. Category scores are held above 1.0.</p>
+<p>Scores rank work; they do not certify compliance. Review the severity, confidence, measured values, and evidence for each finding. A single severe problem can remain important even when the aggregate score is high.</p>
+<h2 id="10-sharp-trace-corner-screening">10. Sharp trace corner screening</h2>
+<h3 id="10-1-default-behavior">10.1 Default behavior</h3>
+<p>The default acute threshold is <strong>75 degrees</strong>. Only an included routing angle below 75 degrees is considered. An ordinary 90-degree bend is not flagged. A two-segment 45-degree routing style produces a 135-degree included angle and is not flagged.</p>
+<p>The detector excludes by default:</p>
+<ul>
+<li>Vertices inside a pad bounding box plus configured clearance</li>
+<li>Vertices located on vias</li>
+<li>Junctions with three or more attached segments</li>
+<li>Adjacent segments shorter than 0.50 mm</li>
+<li>Internal joints from approximating one KiCad arc</li>
+<li>Duplicate segments derived from the same source item</li>
+</ul>
+<p>This removes common false positives from rectangular pads and pad-entry geometry. A genuine acute bend outside the pad exclusion region can still be reported.</p>
+<h3 id="10-2-tuning">10.2 Tuning</h3>
+<ul>
+<li><code>noise.acute_corner_warning_deg</code>: acute threshold</li>
+<li><code>noise.corner_pad_exclusion</code>: pad/via exclusion</li>
+<li><code>noise.corner_pad_clearance_mm</code>: clearance around pad bounds</li>
+<li><code>noise.corner_min_segment_length_mm</code>: micro-segment rejection</li>
+<li><code>noise.corner_skip_complex_junctions</code>: branch-point rejection</li>
+</ul>
+<p>Corners have a default 10% qualitative weight because return-path discontinuity, ground geometry, and parallel coupling are generally more important screening targets.</p>
+<h2 id="11-electrically-long-routed-net-screening">11. Electrically long routed net screening</h2>
+<h3 id="11-1-route-path-estimate">11.1 Route-path estimate</h3>
+<p>Summing every branch of a net makes a short multi-drop bus appear longer than any source-to-load path. Version 0.0.2 builds connected route components and estimates the longest endpoint-to-endpoint path. Small components are exhaustively scanned; larger components use a bounded terminal/junction or cyclic-node scan controlled by <code>long_net_diameter_scan_limit</code> (default 32). Total copper remains diagnostic evidence but is not blindly added to the electrical path.</p>
+<h3 id="11-2-defaults">11.2 Defaults</h3>
+<ul>
+<li>Geometric threshold: 50 mm</li>
+<li>Signal rise time: 1.0 ns</li>
+<li>Critical-length fraction: 1/6 of propagation distance</li>
+<li>Trigger mode: <code>both_or_severe</code></li>
+<li>Common ground and power names excluded by default</li>
+</ul>
+<p><code>both_or_severe</code> reports a component when both geometric and electrical thresholds are exceeded, or when the route is more than 1.5 times the smaller threshold. This reduces marginal false positives while retaining clearly long routes.</p>
+<h3 id="11-3-tuning-guidance">11.3 Tuning guidance</h3>
+<p>Use the actual driver rise time rather than only clock frequency. Increase rise time for slow GPIO. For high-speed buses, save board-specific settings until net-class presets are introduced. Edit <code>long_net_ignore_regex</code> to include or remove power nets. Use <code>either</code> for maximum sensitivity or <code>both</code> for stronger false-positive suppression.</p>
+<h2 id="12-other-qualitative-checks">12. Other qualitative checks</h2>
+<ul>
+<li><strong>Dangling stub:</strong> route branch not anchored to a pad or via</li>
+<li><strong>Parallel coupling:</strong> different-net parallel distance, spacing, and overlap</li>
+<li><strong>Missing return via:</strong> layer transition without nearby ground return via</li>
+<li><strong>Edge-proximate signal:</strong> signal copper close to Edge.Cuts</li>
+<li><strong>Differential-pair mismatch:</strong> P/N or +/- route-length mismatch</li>
+<li><strong>Ground-pour antenna:</strong> necking, slenderness, anchor distance, resonance estimate, and nearby aggressor evidence</li>
+</ul>
+<p>These are geometry-based checks. On a two-layer board, the generic layer-transition return-via warning is disabled by default. Reference-plane gaps require a sustained absolute length and route fraction after endpoint breakout exclusion, while GND detour requires both a high ratio and a minimum absolute excess. They cannot completely infer driver current, termination, cable, enclosure, common-mode conversion, or functional net intent.</p>
+<h2 id="13-ground-pour-detection-and-fix-preview">13. Ground-pour detection and fix preview</h2>
+<h3 id="13-1-detection">13.1 Detection</h3>
+<p>The detector rasterizes each filled GND polygon and first constructs a <strong>protected GND backbone</strong>. The morphological opening uses the larger of the configured neck width and required connection width <code>t</code> (default 1.0 mm). The largest broad region becomes the primary core; every other broad region is mandatory, so the only narrow bridge between two substantial plane regions cannot be removed. Every physical pad area and a conservative pad-launch/thermal margin are non-removable. Same-net GND pads, vias, explicit GND traces, and each existing perimeter-GND component are mandatory terminals. A shortest occupied-copper path from every secondary core and terminal to the primary core is protected and dilated to width <code>t</code>. Only residual copper outside this protected union can become an appendage finding, and removal is reported only after a second connectivity proof shows that every mandatory group still reaches the primary core. A floating component is classified as an island rather than also receiving appendage findings. Refill zones in KiCad before scanning.</p>
+<p>Automatic residual removal fails closed when a valid closed Edge.Cuts loop, broad GND core, raster budget, or mandatory-terminal connectivity proof is unavailable. The plugin prefers no automatic keepout over guessing which copper is a required pad launch or perimeter return path.</p>
+<h3 id="13-2-candidate-actions">13.2 Candidate actions</h3>
+<p>For each proven finding, it compares:</p>
+<ol>
+<li>An exact shape-matched copper-pour keepout rule area</li>
+<li>A same-net ground bridge only when it crosses a real uncovered gap</li>
+<li>A GND stitching via only when it creates a new inter-layer connection</li>
+<li>A bridge plus via when both tests succeed</li>
+</ol>
+<p>A rule area is rejected if it touches any pad, a protected width-<code>t</code> corridor, an explicit GND trace, or protected perimeter GND, or if it lies outside Edge.Cuts. The shape is never expanded beyond the detector's proven residual. Immediately before planning, the protected-backbone analysis is repeated against the current board and the rule-area polygon must exactly match a currently proven residual; stale findings therefore fail closed after a board edit. New tracks and vias require a reconstructable board outline, full-width containment inside Edge.Cuts including concavities and cutouts, and clearance from other-net tracks, vias, pads, and filled zones. Candidates are ranked by predicted risk reduction, added geometry, manufacturability, and confidence.</p>
+<p>The write request performs another independent safety pass. Immediately before mutation, the controller rereads the active board, reruns the complete analysis and planner, and requires the selected action IDs, target net/layer, geometry, dimensions, and safety-proof parameters to match the preview exactly. Any missing or changed action aborts the whole request without modifying the board and requires the fix preview to be rebuilt.</p>
+<h3 id="13-3-preview">13.3 Preview</h3>
+<p>The fix preview overlays proposed tracks, vias, and rule areas on the existing board layers, pads, vias, silk, and findings. Use zoom, pan, and layer controls to inspect conflicts and design intent. Proposal checkboxes permit partial adoption, and selected/unselected proposals use different preview styling.</p>
+<h3 id="13-4-apply">13.4 Apply</h3>
+<p>Disable Dry-run only after review, select the confirmation check, and apply actions meeting the confidence threshold. Do not edit pads, GND tracks, zones, or Edge.Cuts between preview and apply; when such an edit is detected, the apply request is rejected and the preview must be rebuilt. Refill zones and run DRC afterward. Supported changes are grouped into a single undo transaction where possible.</p>
+<h2 id="14-silkscreen-cleanup-and-preview">14. Silkscreen cleanup and preview</h2>
+<p>Defaults:</p>
+<ul>
+<li>Text width 0.8 mm</li>
+<li>Text height 0.8 mm</li>
+<li>Stroke 0.10 mm</li>
+<li>Hide references</li>
+<li>Show values</li>
+<li>Avoid pads, vias, board edges, and existing text</li>
+<li>Skip locked footprints</li>
+<li>Choose a safe 0°, 90°, +45°, or -45° orientation</li>
+<li>Hide MountingHole and LOGO values by default</li>
+<li>Move references to F.Fab/B.Fab and hide them</li>
+</ul>
+<p>Building a silkscreen plan overlays proposed values separately from existing <code>F.SilkS</code> and <code>B.SilkS</code>. Footprints without a safe candidate are skipped rather than forced into collision.</p>
+<p>Before applying, verify polarity, pin-1 markers, warnings, certification marks, and rework access. Explicitly enable the JLCPCB 1.0 mm text / 0.15 mm stroke profile when that readability baseline is required.</p>
+<h2 id="15-board-outline-optimization">15. Board-outline optimization</h2>
+<h3 id="15-1-default-strategy">15.1 Default strategy</h3>
+<ul>
+<li>Mode: diagonal edges allowed</li>
+<li>Strategy: <code>convex_preserve_existing_concavities</code></li>
+<li>Target vertices: 8</li>
+<li>Allowed target range: 4–64</li>
+<li>Vertex grid: 0.5 mm</li>
+<li>Fillet radius: 1.0 mm</li>
+<li>Destructive replacement: disabled</li>
+</ul>
+<p>The proposal starts from a convex support polygon around protected footprints, pads, vias, tracks, and mounting holes. A concave source vertex is reinserted only when it already existed in Edge.Cuts and passes protection and safety tests. New concavities are not created by default.</p>
+<h3 id="15-2-target-polygon-side-count">15.2 Target polygon side count</h3>
+<p>Set <code>target_vertex_count</code> to the desired target. The actual count may differ because of the safe hull, grid, protected geometry, original concavities, and orthogonal constraints. The proposal reports requested and actual values.</p>
+<p>More sides can follow the board content more closely but increase mechanical and manufacturing review complexity. Six to twelve is a practical starting range for many boards.</p>
+<p>When a vertex grid is enabled, the optimizer inserts only lattice points that lie <strong>exactly on an existing edge</strong>. It never rounds an arbitrary midpoint inward. If the requested count cannot be reached safely, the proposal uses fewer vertices and emits a warning instead of violating the protected envelope.</p>
+<p>If grid processing creates an unintended reflex vertex, the default strategy returns to a convex hull. Only concavities explicitly preserved from the source outline may remain.</p>
+<h3 id="15-3-orthogonal-mode">15.3 Orthogonal mode</h3>
+<p>Choose <code>orthogonal</code> for horizontal and vertical edges only. Choose <code>diagonal</code> and enable <code>allow_diagonal_edges</code> when sloped edges are acceptable.</p>
+<h3 id="15-4-ground-perimeter-and-application-gates">15.4 Ground perimeter and application gates</h3>
+<p>The plugin samples the proposed perimeter and blocks automatic replacement unless the requested ground band can be demonstrated. It also checks area-reduction limits, component and copper margins, mounting-hole protection, and post-fillet area. In addition to the sharp polygon, it verifies that the <strong>actual rounded contour, including every fillet arc</strong>, contains all protected geometry; the contour is expanded outward when needed and proposal generation fails closed if safety cannot be established.</p>
+<p>The outline view exposes the vertex grid directly and provides separate <strong>Optimize</strong>, <strong>Smooth current outline</strong>, and <strong>Fillet current outline</strong> operations. Existing board layers are overlaid in the outline preview.</p>
+<p>Application requires destructive replacement to be enabled, a backup, the exact board name, and explicit confirmation. Enclosure, connector, panel, fixture, antenna keepout, and creepage requirements remain a human responsibility.</p>
+<h2 id="16-gnd-via-stitching">16. GND via stitching</h2>
+<p><strong>Plan via stitching</strong> verifies same-net ground fill and creates moderate-density perimeter candidates. The defaults are 5.0 mm spacing and 2.5 mm minimum spacing, with candidates near outline vertices prioritized. The full via annulus must remain inside target ground copper and pass other-net, pad, existing-via, and edge-clearance checks.</p>
+<p>A perimeter rebuild preview shows both removals and additions. If only some additions are selected, deletion of the old ring is automatically disabled. Ordinary stitching additions retain existing vias.</p>
+<h2 id="17-schematic-block-initial-placement">17. Schematic-block initial placement</h2>
+<p><strong>Plan initial placement</strong> is a dry-run aid for an unrouted board. It groups footprints by schematic sheet path where available, preserves locked parts, biases connectors toward the perimeter, and places likely capacitors near candidate pads carrying matching power nets. Larger core parts are placed first to make block structure easier to route.</p>
+<p>The preview now draws each destination footprint body, translated pad geometry, reference/value fields, schematic-group box, identity label, and an arrow from the current position. Selected and unselected moves are visually distinct, so the proposed component and destination can be identified without relying on a center dot.</p>
+<p>This is not complete autorouting or circuit-intent inference. Review thermal, isolation, RF, mechanical, and usability constraints, then select only the moves to adopt.</p>
+<h2 id="18-jlcpcb-manufacturing-profiles">18. JLCPCB manufacturing profiles</h2>
+<h3 id="16-1-economy-default">16.1 Economy default</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layers</td>
+<td style="text-align:right">2</td>
+</tr>
+<tr>
+<td>Thickness</td>
+<td style="text-align:right">1.6 mm</td>
+</tr>
+<tr>
+<td>Solder mask</td>
+<td style="text-align:right">Green</td>
+</tr>
+<tr>
+<td>Silkscreen</td>
+<td style="text-align:right">White</td>
+</tr>
+<tr>
+<td>Copper</td>
+<td style="text-align:right">1 oz</td>
+</tr>
+<tr>
+<td>Finish</td>
+<td style="text-align:right">Leaded HASL</td>
+</tr>
+<tr>
+<td>Track/clearance baseline</td>
+<td style="text-align:right">0.20/0.20 mm</td>
+</tr>
+<tr>
+<td>Automatic-fix via</td>
+<td style="text-align:right">0.60/0.30 mm</td>
+</tr>
+<tr>
+<td>Routed-edge copper distance</td>
+<td style="text-align:right">0.30 mm</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-2-capability-limit">16.2 Capability limit</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Track/clearance</td>
+<td style="text-align:right">0.10/0.10 mm</td>
+</tr>
+<tr>
+<td>Via diameter/drill</td>
+<td style="text-align:right">0.25/0.15 mm</td>
+</tr>
+<tr>
+<td>Annular ring</td>
+<td style="text-align:right">0.05 mm</td>
+</tr>
+<tr>
+<td>Routed-edge copper distance</td>
+<td style="text-align:right">0.20 mm</td>
+</tr>
+</tbody>
+</table>
+<p>Process limits are not recommended board-wide defaults. Fine tracks, small drills, colors, thicknesses, and finishes may affect price, lead time, and yield.</p>
+<h3 id="16-3-thickness-and-color">16.3 Thickness and color</h3>
+<p>Available thicknesses are 0.4, 0.6, 0.8, 1.0, 1.2, 1.6, and 2.0 mm. Mask colors are green, purple, red, yellow, blue, white, and black. White mask automatically selects black silkscreen; other masks select white silkscreen.</p>
+<p>Board thickness and color cannot always be safely written through the KiCad 10 public IPC. The plugin stores the order assumption, compares any readable KiCad data, and exports it in JSON and order notes. Set the same values in KiCad Board Setup and the JLCPCB quote.</p>
+<h3 id="16-4-multiple-track-width-presets">16.4 Multiple track-width presets</h3>
+<p>Available track widths are:</p>
+<p><code>0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 3.0, 5.0 mm</code></p>
+<p>Multi-selection defines the routing catalogue for the project. One safe automatic-repair width is chosen using this order:</p>
+<ol>
+<li>Use the active profile default when it is selected</li>
+<li>Otherwise use the smallest selected width that satisfies the active profile</li>
+<li>If no selection satisfies the profile, fall back to the profile default</li>
+</ol>
+<p>Selecting both 0.1 and 0.2 mm under the economy profile therefore keeps 0.20 mm for automatic repairs. The 0.1 mm catalogue entry remains available for local routing and is reported by DFM when used outside the active baseline.</p>
+<h3 id="16-5-multiple-via-presets">16.5 Multiple via presets</h3>
+<ul>
+<li>JLCPCB capability limit: 0.25 / 0.15 mm</li>
+<li>KiCad 10 default / JLCPCB economy: 0.60 / 0.30 mm</li>
+</ul>
+<p>Both may be selected. Automatic repairs use 0.60/0.30 mm under the economy profile and prefer 0.25/0.15 mm under the capability profile. The complete selection is retained in routing exports.</p>
+<h3 id="16-6-dfm-and-exports">16.6 DFM and exports</h3>
+<p>The DFM checker covers track width, different-net clearance, via diameter/drill/annular ring, hole spacing, edge clearance, thickness/finish combinations, and silkscreen dimensions. Japanese UI displays the issue details and recommendations in Japanese.</p>
+<p>Manufacturing bundle:</p>
+<pre><code class="language-text">jlcpcb-dfm-report.json
+jlcpcb-order-settings.json
+routing-presets.json
+emi-guardian-jlcpcb.kicad_dru
+JLCPCB-ORDER-NOTES.md
+README.txt
+</code></pre>
+<p>The <code>kicad_dru</code> file is a review template, not an automatic replacement for existing project rules.</p>
+<h2 id="19-long-idle-connection-behavior">19. Long-idle connection behavior</h2>
+<p>Earlier versions shut down the local dashboard after a default 60-minute inactivity timer, which could look like a KiCad connection bug. Version 0.0.2 defaults to:</p>
+<ul>
+<li>Idle shutdown: 0 minutes, disabled</li>
+<li>KiCad heartbeat: 20 seconds</li>
+<li>IPC retry count: 2</li>
+</ul>
+<p>The browser periodically calls <code>/api/ping</code>. If the IPC client is stale, the plugin closes it and attempts a bounded reconnect. Closing KiCad, closing the board, OS sleep, or blocking localhost traffic can still interrupt the session. Reopen the board and run a fresh analysis.</p>
+<p>Set <code>ui.inactivity_timeout_minutes</code> to a positive value only when automatic shutdown is desired.</p>
+<h2 id="20-performance">20. Performance</h2>
+<p>Version 0.0.2 adds:</p>
+<ul>
+<li>Uniform-grid indexing for pad/via proximity queries</li>
+<li>Spatial deduplication of parallel-route findings</li>
+<li>Connected-component processing for long routes</li>
+<li>Bounded preview payloads and delayed rendering</li>
+<li>Per-stage analysis timing</li>
+<li>A 1,500,000-cell antenna raster cap</li>
+</ul>
+<p>Stage timing is included in report statistics. Increase <code>antenna.raster_step_mm</code> for faster scans, but understand that coarser rasterization can miss fine copper features. Speed and maximum geometric sensitivity cannot both be optimized without tradeoffs.</p>
+<h2 id="21-quantitative-estimates">21. Quantitative estimates</h2>
+<p>The plugin displays:</p>
+<ul>
+<li>Microstrip and stripline characteristic impedance approximations</li>
+<li>Effective permittivity</li>
+<li>Propagation speed and delay</li>
+<li>Rise-time critical length</li>
+<li>Quarter-wave resonance</li>
+<li>Copper skin depth</li>
+<li>Normalized parallel-coupling proxy</li>
+</ul>
+<p>Solver exchange output contains geometry, layers, nets, units, and material assumptions. It does not automatically establish ports, excitation, termination, cables, enclosure, boundary conditions, or mesh convergence, so an export is not a completed EM simulation.</p>
+<h2 id="22-configuration-summary">22. Configuration summary</h2>
+<h3 id="20-1-general">20.1 General</h3>
+<ul>
+<li><code>fixes.dry_run</code></li>
+<li><code>fixes.minimum_apply_confidence</code></li>
+<li><code>ui.language</code>: <code>auto</code>, <code>ja</code>, or <code>en</code></li>
+<li><code>ui.inactivity_timeout_minutes</code>: 0 disables</li>
+<li><code>ui.heartbeat_seconds</code></li>
+<li><code>ui.ipc_retry_count</code></li>
+</ul>
+<h3 id="20-2-antenna">20.2 Antenna</h3>
+<p>Ground-net regular expression, raster step and cell cap, neck width, required connection width <code>t</code>, pad/via/explicit-track protection margins, protected perimeter-GND width, appendage length, anchor distance, resonance target, effective permittivity, and aggressor distance.</p>
+<h3 id="20-3-noise">20.3 Noise</h3>
+<p>Parallel-angle/spacing/overlap, acute threshold and pad exclusion, route length, rise time, critical-length fraction, long-route mode, two-layer reference-gap minimum length/fraction and endpoint exclusion, GND-detour minimum ratio/excess, edge clearance, and differential naming/mismatch.</p>
+<h3 id="20-4-outline">20.4 Outline</h3>
+<ul>
+<li><code>mode</code>: <code>orthogonal</code> or <code>diagonal</code></li>
+<li><code>outline_strategy</code>: default <code>convex_preserve_existing_concavities</code></li>
+<li><code>target_vertex_count</code>: 4–64</li>
+<li>Grid, fillet radius, component/copper margins, ground band, and maximum reduction</li>
+</ul>
+<p>Advanced JSON exposes every setting. Invalid values are rejected. The configuration schema is version 5.</p>
+<h2 id="23-reports-and-retained-data">23. Reports and retained data</h2>
+<p>HTML, JSON, and Markdown reports contain scores, bilingual finding presentation, evidence, plans, outline data, quantitative estimates, DFM, assumptions, and timing. Review net and board names before committing reports to a public repository.</p>
+<p>Normal uninstall preserves settings and reports. Use the explicit removal options only when a complete local cleanup is intended.</p>
+<h2 id="24-troubleshooting">24. Troubleshooting</h2>
+<h3 id="corner-score-is-unexpectedly-low">Corner score is unexpectedly low</h3>
+<p>Inspect included angles. If ordinary 90-degree bends are reported, an old 0.2.x environment or cached web assets may still be running. Version 0.0.2 defaults to 75 degrees and does not flag 90 degrees.</p>
+<h3 id="a-real-acute-corner-is-missed">A real acute corner is missed</h3>
+<p>Check whether it is inside the pad/via exclusion area, a branch point, a short segment, or an arc approximation. Reduce pad clearance or minimum segment length only after reviewing false-positive impact.</p>
+<h3 id="too-many-long-route-findings">Too many long-route findings</h3>
+<p>Enter the real driver rise time, inspect <code>long_net_trigger_mode</code>, power-net exclusion, and the 50 mm threshold. Confirm the displayed route is the estimated maximum endpoint path, not total branch copper.</p>
+<h3 id="kicad-selection-works-but-zoom-does-not">KiCad selection works but zoom does not</h3>
+<p>The internal KiCad action name may be unavailable. Use manual zoom-to-selection. If zero items are selected, the board may have changed since analysis; rerun the scan.</p>
+<h3 id="connection-fails-after-a-long-pause">Connection fails after a long pause</h3>
+<p>Confirm KiCad and a board remain open, the browser tab belongs to the same session, and the OS has resumed from sleep. Check heartbeat and retry settings, then run a new analysis.</p>
+<h3 id="presets-are-still-single-select">Presets are still single-select</h3>
+<p>Version 0.0.2 uses checkboxes. Update the plugin, recreate the managed environment, and force-refresh the browser to remove old assets.</p>
+<h3 id="fix-or-silk-overlay-is-missing">Fix or silk overlay is missing</h3>
+<p>Build the corresponding plan first, then enable the <strong>Fix Preview</strong> or <strong>Silk Preview</strong> layer.</p>
+<h3 id="dfm-is-too-strict">DFM is too strict</h3>
+<p>The economy profile is intentionally more conservative than process limits. Use capability geometry locally rather than changing every automatic repair to a process-limit dimension.</p>
+<h2 id="25-pre-order-checklist">25. Pre-order checklist</h2>
+<ol>
+<li>Save the board and create a backup or Git commit.</li>
+<li>Match layer count, thickness, color, copper, and finish in KiCad, the plugin, and the quote.</li>
+<li>Resolve DFM errors and review every warning.</li>
+<li>Inspect EMI findings in KiCad.</li>
+<li>Verify automatic proposals against design intent.</li>
+<li>Refill zones.</li>
+<li>Run KiCad DRC.</li>
+<li>Inspect Gerbers, drills, Edge.Cuts, mask, and silkscreen.</li>
+<li>Check connectors, mounting holes, enclosure, panelization, and V-cuts.</li>
+<li>Review JLCPCB's uploaded-file DFM and live quote.</li>
+<li>Prepare any required SI/EMC measurement plan.</li>
+</ol>
+<h2 id="26-publishing-on-github">26. Publishing on GitHub</h2>
+<p>See <a href="github-release.md">Publishing the release on GitHub</a>. The minimal sequence is:</p>
+<pre><code class="language-bash">git init
+git branch -M main
+git add .
+git commit -m &quot;Release EMI Guardian v0.0.2&quot;
+git remote add origin https://github.com/&lt;USER_OR_ORG&gt;/kicad-emi-guardian.git
+git push -u origin main
+git tag -a v0.0.2 -m &quot;EMI Guardian v0.0.2&quot;
+git push origin v0.0.2
+</code></pre>
+<p>Attach platform installers, manual/PCM/source archives, manuals, <code>SHA256SUMS</code>, and <code>BUILD-INFO.json</code> to the GitHub Release.</p>
+<h2 id="27-limitations">27. Limitations</h2>
+<ul>
+<li>Static PCB geometry cannot prove that every physical radiator has been found.</li>
+<li>Ground-pour detection depends on filled geometry and raster resolution.</li>
+<li>Selection plus zoom is not a persistent DRC marker.</li>
+<li>KiCad action identifiers are not stable API contracts, so automatic zoom may require future adaptation.</li>
+<li>Thickness, color, and project-rule writing are handled through validation/export when the public IPC does not provide a safe write path.</li>
+<li>The outline optimizer cannot understand enclosure intent.</li>
+<li>JLCPCB capability and price rules can change.</li>
+<li>Automated tests cannot replace live KiCad GUI acceptance, EMC measurement, or manufacturer acceptance.</li>
+</ul>
+<h2 id="28-references">28. References</h2>
+<ul>
+<li>JLCPCB PCB Capabilities: https://jlcpcb.com/capabilities/pcb-capabilities</li>
+<li>JLCPCB Quote: https://cart.jlcpcb.com/quote</li>
+<li>KiCad 10 PCB Editor Manual: https://docs.kicad.org/10.0/en/pcbnew/pcbnew.html</li>
+<li>KiCad IPC API: https://dev-docs.kicad.org/en/apis-and-binding/ipc-api/</li>
+<li>kicad-python: https://docs.kicad.org/kicad-python-main/</li>
+<li>GitHub Actions: https://docs.github.com/actions</li>
+<li>GitHub Releases: https://docs.github.com/repositories/releasing-projects-on-github</li>
+</ul>
+<hr />
+<p>This manual and the bundled JLCPCB values are based on public information verified on 2026-08-13. Recheck official information immediately before fabrication.</p>
+
+<footer>EMI Guardian 0.0.2 · Pre-release engineering preview · Generated from the bilingual source documentation.</footer>
+</main>
+</div>
+</body>
+</html>

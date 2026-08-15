@@ -1,0 +1,22 @@
+EMI Guardian 0.0.2 - KiCad 10 / Python 3.9 installation
+================================================================
+
+1. In the KiCad Project Manager, open Preferences > Preferences... > Plugins
+   and enable Enable KiCad API.
+2. Python 3.9 is supported. Replacing it with Python 3.10 is not required.
+3. Place this complete emi-guardian directory directly under KiCad's plugins
+   directory.
+4. Confirm that the manifest is located at:
+   <KICAD_DOCUMENTS_HOME>/10.0/plugins/emi-guardian/plugin.json
+5. KiCad will not discover an extra extraction level such as:
+   plugins/emi-guardian-0.0.2-manual-install/emi-guardian/plugin.json
+6. Close all KiCad windows, restart KiCad, and open a board in PCB Editor.
+7. Use Tools > External Plugins > Open EMI Guardian.
+8. If the older release left a failed environment, close KiCad and remove only:
+   Windows: %LOCALAPPDATA%\KiCad\10.0\python-environments\com.openai.kicad.emi-guardian
+   macOS: ~/Library/Caches/KiCad/10.0/python-environments/com.openai.kicad.emi-guardian
+   Linux: ~/.cache/KiCad/10.0/python-environments/com.openai.kicad.emi-guardian
+
+KiCad registers the actions after it finishes preparing the managed virtual
+environment and dependencies. If PCB Editor shows a lower-right warning, check
+for Python, pip, kicad-python, or pynng errors.
