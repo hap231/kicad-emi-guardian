@@ -1,0 +1,171 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Static quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install quality dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[quality]"
+      - name: Lint Python
+        run: ruff check plugin tests tools docs/conf.py
+      - name: Check Python formatting
+        run: ruff format --check plugin tests tools docs/conf.py
+      - name: Type-check analysis core and KiCad adapter
+        run: mypy plugin/emi_guardian
+      - name: Scan Python for security issues
+        run: bandit -r plugin/emi_guardian plugin/open_dashboard.py plugin/quick_scan.py -ll
+      - name: Validate YAML
+        run: yamllint .github
+      - name: Validate Renovate configuration syntax
+        run: python -m json.tool .github/renovate.json5 >/dev/null
+      - name: Validate JavaScript
+        run: node --check plugin/emi_guardian/web/app.js
+      - name: Validate POSIX installers
+        run: shellcheck installers/linux/*.sh installers/macos/*.command
+
+  unit-tests:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.13", "3.14"]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[test]"
+      - name: Run tests with branch coverage
+        run: python -m coverage run -m pytest -q
+      - name: Enforce coverage baseline
+        run: python -m coverage report --show-missing --fail-under=68
+      - name: Compile Python sources
+        run: python -m compileall -q plugin tests tools
+
+  documentation:
+    name: Bilingual documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install documentation dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[docs]"
+      - name: Build and validate bilingual site
+        run: python tools/build_site.py --output site
+
+  dependency-audit:
+    name: Runtime dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install audit tool
+        run: python -m pip install --upgrade pip && python -m pip install "pip-audit>=2.9,<3"
+      - name: Audit runtime dependency graph
+        run: pip-audit --strict --requirement plugin/requirements.txt
+
+  release-validation:
+    name: Reproducible release validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install build dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[test,docs,quality]"
+      - name: Validate package inputs
+        run: python tools/check_package.py
+      - name: Validate KiCad plugin manifest
+        run: kicad-python-packager validate plugin
+      - name: Build Python distributions
+        run: python -m build
+      - name: Build and validate release artifacts
+        run: python tools/build_package.py
+      - name: Validate KiCad PCM archive
+        run: kicad-python-packager validate dist/openai-emi-guardian-*-pcm.zip
+      - name: Record first-build checksums
+        run: cp dist/SHA256SUMS "${RUNNER_TEMP}/SHA256SUMS.first"
+      - name: Rebuild release artifacts
+        run: python tools/build_package.py
+      - name: Verify deterministic release output
+        run: diff -u "${RUNNER_TEMP}/SHA256SUMS.first" dist/SHA256SUMS
+      - name: Verify archive integrity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          archives = sorted(Path("dist").glob("*.zip"))
+          if not archives:
+              raise SystemExit("No release archives were produced")
+          for path in archives:
+              with zipfile.ZipFile(path) as archive:
+                  bad = archive.testzip()
+                  if bad:
+                      raise SystemExit(f"{path}: corrupt member {bad}")
+              print(path)
+          PY
+      - name: Upload validated artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: emi-guardian-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7

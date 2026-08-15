@@ -1,0 +1,57 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["before 6am on monday"],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "configMigration": true,
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 0,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "schedule": ["at any time"]
+  },
+  "ignorePaths": [
+    "dist/**",
+    "site/**",
+    "docs/_build/**",
+    "docs/_generated/**",
+    "plugin/docs/**"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "weekly compatible dependencies",
+      "commitMessagePrefix": "deps:",
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": "major dependencies",
+      "commitMessagePrefix": "deps(major):",
+      "automerge": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "commitMessagePrefix": "ci:"
+    },
+    {
+      "matchPackageNames": ["sphinx", "myst-parser", "furo", "markdown-it-py"],
+      "groupName": "documentation toolchain",
+      "commitMessagePrefix": "docs:"
+    },
+    {
+      "matchPackageNames": ["kicad-python"],
+      "groupName": "KiCad IPC runtime",
+      "commitMessagePrefix": "deps(kicad):",
+      "automerge": false
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>EMI Guardian</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><path d="M10 32h11l5-15 12 31 7-16h9"/><circle cx="10" cy="32" r="3"/><circle cx="54" cy="32" r="3"/></svg>
+        </div>
+        <div><strong>EMI Guardian</strong><span>KiCad 10+</span></div>
+      </div>
+      <div class="board-chip">
+        <span class="status-dot" id="connectionDot"></span>
+        <div><small data-i18n="activeBoard">Active board</small><strong id="boardName">—</strong></div>
+      </div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="dashboard"><span>◫</span><b data-i18n="dashboard">Dashboard</b></button>
+        <button class="nav-item" data-view="fixes"><span>⌁</span><b data-i18n="antennaFixes">Antenna fixes</b></button>
+        <button class="nav-item" data-view="silkscreen"><span>V</span><b data-i18n="silkscreen">Silkscreen</b></button>
+        <button class="nav-item" data-view="edge"><span>⌑</span><b data-i18n="boardOutline">Board outline</b></button>
+        <button class="nav-item" data-view="placement"><span>▤</span><b data-i18n="initialPlacement">Initial placement</b></button>
+        <button class="nav-item" data-view="manufacturing"><span>▦</span><b data-i18n="manufacturing">JLCPCB manufacturing</b></button>
+        <button class="nav-item" data-view="quantitative"><span>∿</span><b data-i18n="quantitative">Quantitative</b></button>
+        <button class="nav-item" data-view="settings"><span>⚙</span><b data-i18n="settings">Settings</b></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="mode-badge" id="dryRunBadge">DRY RUN</div>
+        <small>Pre-release engineering preview</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="viewTitle" data-i18n="dashboard">Dashboard</h1>
+          <p id="viewSubtitle" data-i18n="dashboardSubtitle">Review geometry-derived EMI risks before changing the board.</p>
+        </div>
+        <div class="top-actions">
+          <button class="button ghost" id="languageButton" aria-label="Change language">EN</button>
+          <button class="button secondary" id="exportReportButton" data-i18n="exportReport">Export report</button>
+          <button class="button primary" id="scanButton"><span class="button-icon">↻</span><span data-i18n="runScan">Run scan</span></button>
+        </div>
+      </header>
+
+      <div class="banner warning hidden" id="globalBanner" role="status"></div>
+
+      <section class="view active" id="view-dashboard">
+        <div class="metric-grid">
+          <article class="metric-card accent"><span data-i18n="boardScore">Board score</span><strong id="scoreValue">—</strong><small id="scoreLabel">Not scanned</small></article>
+          <article class="metric-card"><span data-i18n="criticalFindings">Critical / high</span><strong id="criticalValue">—</strong><small data-i18n="requiresReview">Requires review</small></article>
+          <article class="metric-card"><span data-i18n="allFindings">All findings</span><strong id="findingValue">—</strong><small id="findingSummary">—</small></article>
+          <article class="metric-card"><span data-i18n="mutationMode">Mutation mode</span><strong id="modeValue">—</strong><small id="modeSummary">—</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel board-panel">
+            <div class="panel-header responsive"><div><h2 data-i18n="boardPreview">Board preview</h2><p data-i18n="previewNote">Finding locations are shown over board geometry.</p></div><div class="preview-controls" aria-label="Preview controls"><button type="button" data-preview-target="boardPreview" data-preview-action="zoom-out" title="Zoom out">−</button><button type="button" data-preview-target="boardPreview" data-preview-action="zoom-in" title="Zoom in">＋</button><button type="button" data-preview-target="boardPreview" data-preview-action="fit" data-i18n-title="fitPreview" title="Fit">⌂</button></div></div>
+            <div class="layer-toggle-row" id="boardLayerToggles" aria-label="Layer visibility"></div>
+            <div class="board-stage interactive-preview" data-preview-stage="boardPreview"><svg id="boardPreview" role="img" aria-label="Board geometry preview"></svg><div class="preview-tooltip hidden" data-preview-tooltip="boardPreview"></div><div class="empty-state" id="previewEmpty"><strong data-i18n="scanToPreview">Run a scan to build the preview</strong><span data-i18n="readOnlyScan">The scan is read-only.</span></div></div>
+          </article>
+          <article class="panel score-panel">
+            <div class="panel-header"><div><h2 data-i18n="categoryScores">Category scores</h2><p data-i18n="higherBetter">Higher is better.</p></div></div>
+            <div id="categoryScores" class="score-list"></div>
+          </article>
+        </div>
+
+        <article class="panel findings-panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="findings">Findings</h2><p id="findingsCaption" data-i18n="findingsSubtitle">Evidence, confidence, and recommended action.</p></div><div class="filters"><select id="severityFilter" aria-label="Severity filter"><option value="all" data-i18n="allSeverities">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option><option value="info">Info</option></select><select id="categoryFilter" aria-label="Category filter"><option value="all" data-i18n="allCategories">All categories</option></select></div></div>
+          <div class="finding-list" id="findingList"><div class="empty-block"><strong data-i18n="noAnalysis">No analysis yet</strong><span data-i18n="runFirstScan">Run the first scan to identify review targets.</span></div></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-fixes">
+        <article class="hero-panel">
+          <div><span class="eyebrow">GROUND-POUR REMEDIATION</span><h2 data-i18n="fixHeroTitle">Ranked, conservative antenna remediation</h2><p data-i18n="fixHeroText">The planner compares a GND bridge, stitching via, combined bridge-and-via, and copper keepout. Only candidates above the confidence threshold can be applied.</p></div>
+          <button class="button primary" id="planFixesButton" data-i18n="planFixes">Plan fixes</button>
+        </article>
+        <div class="metric-grid compact">
+          <article class="metric-card"><span data-i18n="selectedActions">Selected actions</span><strong id="fixSelectedCount">—</strong></article>
+          <article class="metric-card"><span data-i18n="estimatedReduction">Expected risk reduction</span><strong id="fixReduction">—</strong></article>
+          <article class="metric-card"><span data-i18n="manualReview">Manual-review items</span><strong id="fixWarningCount">—</strong></article>
+        </div>
+        <article class="panel preview-panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="fixPreviewTitle">アンテナ修正プレビュー</h2><p data-i18n="fixPreviewHelp">追加配線、ビア、ルールエリアを基板上に重ねて表示します。</p></div><div class="preview-controls"><button type="button" data-preview-target="fixPreview" data-preview-action="zoom-out">−</button><button type="button" data-preview-target="fixPreview" data-preview-action="zoom-in">＋</button><button type="button" data-preview-target="fixPreview" data-preview-action="fit">⌂</button></div></div>
+          <div class="layer-toggle-row" id="fixLayerToggles"></div>
+          <div class="board-stage interactive-preview" data-preview-stage="fixPreview"><svg id="fixPreview" role="img" aria-label="Antenna fix preview"></svg><div class="preview-tooltip hidden" data-preview-tooltip="fixPreview"></div><div class="empty-state" id="fixPreviewEmpty"><strong data-i18n="noFixPlan">修正案がありません。</strong></div></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="proposedActions">Proposed actions</h2><p data-i18n="fixTableSubtitle">No board item is written until Apply is confirmed.</p></div><div class="selection-actions"><button type="button" class="button ghost compact-button" id="selectAllFixesButton" data-i18n="selectAll">Select all</button><button type="button" class="button ghost compact-button" id="clearFixesButton" data-i18n="clearSelection">Clear</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="adopt">Adopt</th><th data-i18n="finding">Finding</th><th data-i18n="method">Method</th><th data-i18n="layer">Layer</th><th data-i18n="confidence">Confidence</th><th data-i18n="utility">Utility</th><th data-i18n="description">Description</th></tr></thead><tbody id="fixTableBody"><tr><td colspan="7" class="table-empty" data-i18n="noFixPlan">No fix plan yet.</td></tr></tbody></table></div>
+          <div class="apply-bar"><label class="confirm-control"><input type="checkbox" id="fixConfirm"><span data-i18n="confirmReviewed">I reviewed the proposed changes and will run DRC afterward.</span></label><button class="button danger" id="applyFixesButton" disabled data-i18n="applyFixes">Apply selected fixes</button></div>
+        </article>
+        <article class="panel subtle"><h3 data-i18n="safetyModel">Safety model</h3><div class="three-column"><p><strong>1. Preview</strong><span data-i18n="safetyPreview">Planning is geometry-only and never edits the board.</span></p><p><strong>2. Gate</strong><span data-i18n="safetyGate">Dry-run and minimum confidence block uncertain writes.</span></p><p><strong>3. Verify</strong><span data-i18n="safetyVerify">All writes use one Undo group; refill zones and run DRC.</span></p></div></article>
+      </section>
+
+      <section class="view" id="view-silkscreen">
+        <article class="hero-panel">
+          <div><span class="eyebrow">VALUE-FIRST SILKSCREEN</span><h2 data-i18n="silkHeroTitle">Show component values without broken or colliding text</h2><p data-i18n="silkHeroText">Values default to 0.8 × 0.8 mm with a 0.10 mm stroke. Candidate positions avoid pads, vias, board edges, and existing text.</p></div>
+          <button class="button primary" id="planSilkButton" data-i18n="planSilk">Plan silkscreen</button>
+        </article>
+        <div class="metric-grid compact">
+          <article class="metric-card"><span data-i18n="placeableValues">Placeable values</span><strong id="silkPlaced">—</strong></article>
+          <article class="metric-card"><span data-i18n="skippedValues">Skipped values</span><strong id="silkSkipped">—</strong></article>
+          <article class="metric-card"><span data-i18n="defaultSize">Default size</span><strong id="silkSize">0.8 × 0.8</strong><small>mm</small></article>
+        </div>
+        <article class="panel preview-panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="silkPreviewTitle">シルク配置プレビュー</h2><p data-i18n="silkPreviewHelp">現在のシルクと提案する部品値をレイヤー別に確認できます。</p></div><div class="preview-controls"><button type="button" data-preview-target="silkPreview" data-preview-action="zoom-out">−</button><button type="button" data-preview-target="silkPreview" data-preview-action="zoom-in">＋</button><button type="button" data-preview-target="silkPreview" data-preview-action="fit">⌂</button></div></div>
+          <div class="layer-toggle-row" id="silkLayerToggles"></div>
+          <div class="board-stage interactive-preview" data-preview-stage="silkPreview"><svg id="silkPreview" role="img" aria-label="Silkscreen placement preview"></svg><div class="preview-tooltip hidden" data-preview-tooltip="silkPreview"></div><div class="empty-state" id="silkPreviewEmpty"><strong data-i18n="noSilkPlan">シルク配置案がありません。</strong></div></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="placementPlan">Placement plan</h2><p data-i18n="silkTableSubtitle">References are hidden only when the corresponding value update is applied.</p></div><div class="selection-actions"><button type="button" class="button ghost compact-button" id="selectAllSilkButton" data-i18n="selectAll">Select all</button><button type="button" class="button ghost compact-button" id="clearSilkButton" data-i18n="clearSelection">Clear</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="adopt">Adopt</th><th data-i18n="reference">Reference</th><th data-i18n="value">Value</th><th data-i18n="layer">Layer</th><th data-i18n="angle">Angle</th><th data-i18n="distance">Distance</th><th data-i18n="placementScore">Placement cost</th></tr></thead><tbody id="silkTableBody"><tr><td colspan="7" class="table-empty" data-i18n="noSilkPlan">No silkscreen plan yet.</td></tr></tbody></table></div>
+          <div class="apply-bar"><label class="confirm-control"><input type="checkbox" id="silkConfirm"><span data-i18n="confirmSilk">I reviewed the value visibility and placement changes.</span></label><button class="button danger" id="applySilkButton" disabled data-i18n="applySilk">Apply silkscreen plan</button></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-edge">
+        <article class="hero-panel edge-hero">
+          <div><span class="eyebrow">EDGE.CUTS OPTIMIZER</span><h2 data-i18n="edgeHeroTitle">Reduce board area while preserving a verified GND perimeter</h2><p data-i18n="edgeHeroText">The outline is snapped to the selected grid and every corner is filleted. Automatic replacement remains blocked unless the GND band can be proven.</p></div>
+          <div class="hero-actions"><button class="button secondary" id="smoothEdgeButton" data-edge-operation="smooth" data-i18n="smoothOutline">Smooth current outline</button><button class="button secondary" id="filletEdgeButton" data-edge-operation="fillet" data-i18n="filletOutline">Fillet current outline</button><button class="button primary" id="planEdgeButton" data-edge-operation="optimize" data-i18n="planEdge">Build proposal</button></div>
+        </article>
+        <div class="metric-grid compact">
+          <article class="metric-card"><span data-i18n="originalArea">Original area</span><strong id="edgeOriginal">—</strong><small>mm²</small></article>
+          <article class="metric-card"><span data-i18n="proposedArea">Proposed area</span><strong id="edgeProposed">—</strong><small>mm²</small></article>
+          <article class="metric-card"><span data-i18n="areaReduction">Area reduction</span><strong id="edgeReduction">—</strong><small>%</small></article>
+          <article class="metric-card"><span data-i18n="gndPerimeter">GND perimeter</span><strong id="edgeGround">—</strong></article>
+        </div>
+        <div class="dashboard-grid edge-grid">
+          <article class="panel"><div class="panel-header responsive"><div><h2 data-i18n="outlinePreview">Outline preview</h2><p data-i18n="outlinePreviewSubtitle">Rounded primitives generated from the snapped polygon.</p></div><div class="preview-controls"><button type="button" data-preview-target="edgePreview" data-preview-action="zoom-out">−</button><button type="button" data-preview-target="edgePreview" data-preview-action="zoom-in">＋</button><button type="button" data-preview-target="edgePreview" data-preview-action="fit">⌂</button></div></div><div class="layer-toggle-row" id="edgeLayerToggles"></div><div class="board-stage edge-stage interactive-preview" data-preview-stage="edgePreview"><svg id="edgePreview"></svg><div class="preview-tooltip hidden" data-preview-tooltip="edgePreview"></div><div class="empty-state" id="edgePreviewEmpty"><strong data-i18n="noEdgeProposal">No outline proposal yet</strong></div></div></article>
+          <article class="panel"><div class="panel-header"><div><h2 data-i18n="proposalChecks">Proposal checks</h2></div></div><div class="form-grid edge-quick-settings"><label><span data-i18n="vertexGrid">Vertex grid (mm)</span><input id="edgeGridInput" type="number" min="0.05" step="0.05"></label><label><span data-i18n="filletRadius">Fillet radius (mm)</span><input id="edgeFilletInput" type="number" min="0.05" step="0.05"></label></div><dl class="detail-list" id="edgeDetails"><div><dt data-i18n="mode">Mode</dt><dd>—</dd></div><div><dt data-i18n="grid">Grid</dt><dd>—</dd></div><div><dt data-i18n="fillet">Fillet</dt><dd>—</dd></div></dl><div id="edgeWarnings" class="notice-list"></div></article>
+        </div>
+        <article class="panel stitching-panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="viaStitching">GND via stitching</h2><p data-i18n="viaStitchingHelp">Place moderate-density vias only where the same GND net exists on both outer layers and clearance is safe.</p></div><div class="hero-actions"><label class="confirm-control compact"><input type="checkbox" id="rebuildPerimeterVias"><span data-i18n="rebuildPerimeterVias">Rebuild existing perimeter vias</span></label><button class="button secondary" id="planStitchingButton" data-i18n="planStitching">Plan stitching</button></div></div>
+          <div class="stitching-summary" id="stitchingSummary"></div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="adopt">Adopt</th><th>ID</th><th>X</th><th>Y</th><th data-i18n="source">Source</th><th data-i18n="confidence">Confidence</th></tr></thead><tbody id="stitchingTableBody"><tr><td colspan="6" class="table-empty" data-i18n="noStitchingPlan">No stitching plan yet.</td></tr></tbody></table></div>
+          <div class="apply-bar"><label class="confirm-control"><input type="checkbox" id="stitchingConfirm"><span data-i18n="confirmStitching">I reviewed additions and any removals.</span></label><button class="button danger" id="applyStitchingButton" disabled data-i18n="applyStitching">Apply selected stitching vias</button></div>
+        </article>
+        <article class="panel danger-zone"><div><h2 data-i18n="destructiveOperation">Destructive operation</h2><p data-i18n="edgeApplyWarning">Replacement removes current Edge.Cuts, writes the rounded proposal, and creates a backup when configured. Type the exact active board name.</p></div><div class="danger-controls"><input id="edgeBoardConfirm" placeholder="Active board name" autocomplete="off"><label class="confirm-control"><input type="checkbox" id="edgeConfirm"><span data-i18n="confirmEdge">I reviewed dimensions, keepouts, connectors, and manufacturing constraints.</span></label><button class="button danger" id="applyEdgeButton" disabled data-i18n="replaceEdge">Replace Edge.Cuts</button></div></article>
+      </section>
+
+      <section class="view" id="view-placement">
+        <article class="hero-panel">
+          <div><span class="eyebrow">SCHEMATIC-BLOCK PLACEMENT</span><h2 data-i18n="placementHeroTitle">Group footprints by schematic block</h2><p data-i18n="placementHeroText">Create an initial placement proposal that preserves locked footprints, keeps connectors near block perimeters, and orders decoupling capacitors close to associated pads.</p></div>
+          <button class="button primary" id="planPlacementButton" data-i18n="planPlacement">Plan initial placement</button>
+        </article>
+        <div class="metric-grid compact"><article class="metric-card"><span data-i18n="blockCount">Blocks</span><strong id="placementGroupCount">—</strong></article><article class="metric-card"><span data-i18n="componentCount">Components</span><strong id="placementCount">—</strong></article><article class="metric-card"><span data-i18n="capacitorCount">Capacitors</span><strong id="placementCapacitorCount">—</strong></article></div>
+        <article class="panel preview-panel"><div class="panel-header responsive"><div><h2 data-i18n="placementPreview">Initial-placement preview</h2><p data-i18n="placementPreviewHelp">Dashed vectors show proposed movement; selected proposals are emphasized.</p></div><div class="preview-controls"><button type="button" data-preview-target="placementPreview" data-preview-action="zoom-out">−</button><button type="button" data-preview-target="placementPreview" data-preview-action="zoom-in">＋</button><button type="button" data-preview-target="placementPreview" data-preview-action="fit">⌂</button></div></div><div class="layer-toggle-row" id="placementLayerToggles"></div><div class="board-stage interactive-preview" data-preview-stage="placementPreview"><svg id="placementPreview"></svg><div class="preview-tooltip hidden" data-preview-tooltip="placementPreview"></div><div class="empty-state" id="placementPreviewEmpty"><strong data-i18n="noPlacementPlan">No placement plan yet.</strong></div></div></article>
+        <article class="panel"><div class="panel-header responsive"><div><h2 data-i18n="placementPlan">Placement plan</h2></div><div class="selection-actions"><button type="button" class="button ghost compact-button" id="selectAllPlacementButton" data-i18n="selectAll">Select all</button><button type="button" class="button ghost compact-button" id="clearPlacementButton" data-i18n="clearSelection">Clear</button></div></div><div class="table-wrap"><table><thead><tr><th data-i18n="adopt">Adopt</th><th data-i18n="reference">Reference</th><th data-i18n="group">Group</th><th data-i18n="reason">Reason</th><th>X</th><th>Y</th></tr></thead><tbody id="placementTableBody"><tr><td colspan="6" class="table-empty" data-i18n="noPlacementPlan">No placement plan yet.</td></tr></tbody></table></div><div class="apply-bar"><label class="confirm-control"><input type="checkbox" id="placementConfirm"><span data-i18n="confirmPlacement">I reviewed the proposed footprint movements.</span></label><button class="button danger" id="applyPlacementButton" disabled data-i18n="applyPlacement">Apply selected placements</button></div></article>
+      </section>
+
+      <section class="view" id="view-manufacturing">
+        <article class="hero-panel manufacturing-hero">
+          <div>
+            <span class="eyebrow">JLCPCB 2-LAYER DFM</span>
+            <h2 data-i18n="mfgHeroTitle">Choose cost-conscious constraints and verify the board</h2>
+            <p data-i18n="mfgHeroText">Economy uses conservative dimensions intended to avoid known fine-via surcharges. Capability limit exposes published minimums for local dense routing.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="button secondary" id="exportManufacturingButton" data-i18n="mfgExport">Export JLCPCB bundle</button>
+            <button class="button primary" id="checkManufacturingButton" data-i18n="mfgCheck">Run DFM check</button>
+          </div>
+        </article>
+
+        <div class="metric-grid compact">
+          <article class="metric-card accent"><span data-i18n="mfgScore">DFM score</span><strong id="mfgScore">—</strong><small id="mfgStatus">Not checked</small></article>
+          <article class="metric-card"><span data-i18n="mfgErrors">Errors</span><strong id="mfgErrorCount">—</strong></article>
+          <article class="metric-card"><span data-i18n="mfgWarnings">Warnings</span><strong id="mfgWarningCount">—</strong></article>
+          <article class="metric-card"><span data-i18n="mfgOrder">Selected order</span><strong id="mfgOrderSummary">2L · 1.6 mm</strong><small id="mfgColorSummary">Green · 1 oz</small></article>
+        </div>
+
+        <div class="manufacturing-layout">
+          <article class="panel manufacturing-controls">
+            <div class="panel-header"><div><h2 data-i18n="mfgProfileSettings">Profile and order settings</h2><p data-i18n="mfgProfileHelp">Applying a profile updates automatic-fix track and via geometry. It does not silently edit the open KiCad stackup.</p></div></div>
+            <div class="form-grid mfg-form-grid">
+              <label><span data-i18n="mfgProfile">Constraint profile</span><select id="mfgProfileSelect"></select></label>
+              <label><span data-i18n="mfgThickness">Board thickness (mm)</span><select id="mfgThicknessSelect"></select></label>
+              <label><span data-i18n="mfgMaskColor">Solder-mask color</span><select id="mfgMaskColorSelect"></select></label>
+              <label><span data-i18n="mfgCopper">Outer copper (oz)</span><select id="mfgCopperSelect"></select></label>
+              <label><span data-i18n="mfgFinish">Surface finish</span><select id="mfgFinishSelect"></select></label>
+              <label><span data-i18n="mfgSeparation">Board separation</span><select id="mfgSeparationSelect"></select></label>
+            </div>
+            <div class="selected-color" id="mfgColorPreview"><span class="color-swatch" id="mfgColorSwatch"></span><div><strong id="mfgColorName">Green</strong><small data-i18n="mfgColorNote">White silkscreen is selected automatically except on white mask.</small></div></div>
+            <div class="profile-description" id="mfgProfileDescription"></div>
+          </article>
+
+          <article class="panel manufacturing-controls">
+            <div class="panel-header"><div><h2 data-i18n="mfgRoutingPresets">Routing presets</h2><p data-i18n="mfgRoutingHelp">The selected values are also used by automatic GND remediation.</p></div></div>
+            <div>
+              <span class="field-title" data-i18n="mfgTrackWidth">Track width (mm)</span>
+              <div class="preset-grid" id="mfgTrackPresetGrid"></div>
+            </div>
+            <div class="via-preset-section">
+              <span class="field-title" data-i18n="mfgViaPreset">Via preset</span>
+              <div class="via-card-grid" id="mfgViaPresetGrid"></div>
+            </div>
+            <label class="switch-row compact-switch"><span><strong data-i18n="mfgApplySilk">Apply JLCPCB silkscreen readability limits</strong><small data-i18n="mfgApplySilkHelp">Changes 0.8 mm text only when explicitly selected.</small></span><input type="checkbox" id="mfgApplySilk"></label>
+            <button class="button primary full-width" id="applyManufacturingProfileButton" data-i18n="mfgApplyProfile">Apply profile and presets</button>
+          </article>
+        </div>
+
+        <article class="panel mfg-constraints-panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="mfgActiveConstraints">Active constraints</h2><p data-i18n="mfgVerifiedDate">Source data is versioned and includes its verification date.</p></div><span class="pill" id="mfgVerifiedBadge">—</span></div>
+          <div class="constraint-grid" id="mfgConstraintGrid"></div>
+          <div class="notice" id="mfgIpcNotice" data-i18n="mfgIpcNotice">KiCad 10 is validated through IPC; board thickness, colors, and custom rules are exported for explicit review rather than written by text-editing an open board file.</div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header responsive"><div><h2 data-i18n="mfgIssues">JLCPCB DFM issues</h2><p data-i18n="mfgIssuesHelp">Errors violate the active profile. Warnings identify cost, readability, or order-review risks.</p></div><select id="mfgSeverityFilter" aria-label="Manufacturing severity filter"><option value="all" data-i18n="allSeverities">All severities</option><option value="error">Error</option><option value="warning">Warning</option><option value="info">Info</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="mfgSeverity">Severity</th><th data-i18n="mfgCode">Code</th><th data-i18n="mfgCategory">Category</th><th data-i18n="description">Description</th><th data-i18n="mfgMeasuredLimit">Measured / limit</th><th data-i18n="mfgRecommendation">Recommendation</th></tr></thead><tbody id="mfgIssueTableBody"><tr><td colspan="6" class="table-empty" data-i18n="mfgNoReport">No JLCPCB DFM check yet.</td></tr></tbody></table></div>
+          <p class="panel-footnote" data-i18n="mfgDisclaimer">This pre-check is not a quotation or manufacturing acceptance guarantee. Confirm the live JLCPCB quote and DFM result before ordering.</p>
+        </article>
+      </section>
+
+      <section class="view" id="view-quantitative">
+        <article class="hero-panel quantitative-hero"><div><span class="eyebrow">FIRST-ORDER ELECTRICAL ESTIMATES</span><h2 data-i18n="quantHeroTitle">Convert geometry into traceable electrical estimates</h2><p data-i18n="quantHeroText">Closed-form propagation, critical-length, quarter-wave, impedance, skin-depth, and coupling proxies support prioritization. They are not a compliance-grade full-wave solution.</p></div><button class="button secondary" id="exportSolverButton" data-i18n="exportSolver">Export solver bundle</button></article>
+        <div id="quantitativeCards" class="metric-grid"></div>
+        <article class="panel"><div class="panel-header"><div><h2 data-i18n="quantDetails">Quantitative details</h2><p data-i18n="quantDetailsSubtitle">Values use the detected stackup or configured defaults.</p></div></div><pre class="json-view" id="quantitativeJson">Run a scan to calculate estimates.</pre></article>
+        <article class="panel subtle"><h3 data-i18n="fullWaveBoundary">Full-wave boundary</h3><p data-i18n="fullWaveText">A meaningful EM solve additionally needs ports, source spectra, terminations, enclosure and cable geometry, material dispersion, boundary conditions, and a converged mesh. The export bundle preserves geometry and assumptions for a validated downstream workflow.</p></article>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="settings-layout">
+          <aside class="settings-nav">
+            <button class="settings-link active" data-settings="general" data-i18n="general">General</button>
+            <button class="settings-link" data-settings="antenna" data-i18n="antenna">Antenna</button>
+            <button class="settings-link" data-settings="noise" data-i18n="noiseChecks">Noise checks</button>
+            <button class="settings-link" data-settings="silk" data-i18n="silkscreen">Silkscreen</button>
+            <button class="settings-link" data-settings="edge" data-i18n="boardOutline">Board outline</button>
+            <button class="settings-link" data-settings="advanced" data-i18n="advancedJson">Advanced JSON</button>
+          </aside>
+          <div class="settings-content">
+            <section class="settings-pane active" id="settings-general"><h2 data-i18n="generalSettings">General and safety</h2><p data-i18n="generalSettingsText">Dry-run is enabled by default. Disable it only after reviewing plans.</p><div class="form-grid"><label class="switch-row"><span><strong data-i18n="dryRun">Dry-run mode</strong><small data-i18n="dryRunHelp">Block all board writes</small></span><input type="checkbox" data-config="fixes.dry_run"></label><label><span data-i18n="minimumConfidence">Minimum apply confidence</span><input type="number" min="0" max="1" step="0.01" data-config="fixes.minimum_apply_confidence"></label><label><span data-i18n="uiLanguage">UI language</span><select data-config="ui.language"><option value="auto">Auto</option><option value="ja">日本語</option><option value="en">English</option></select></label><label><span data-i18n="reportDirectory">Report directory</span><input type="text" data-config="ui.report_directory"></label><label><span data-i18n="idleTimeout">Idle shutdown (minutes, 0 = disabled)</span><input type="number" min="0" step="1" data-config="ui.inactivity_timeout_minutes"></label><label><span data-i18n="heartbeatInterval">KiCad heartbeat (seconds)</span><input type="number" min="5" step="1" data-config="ui.heartbeat_seconds"></label></div></section>
+            <section class="settings-pane" id="settings-antenna"><h2 data-i18n="antennaSettings">Ground antenna detector</h2><div class="form-grid"><label><span data-i18n="groundNetRegex">Ground-net regular expression</span><input type="text" data-config="antenna.ground_net_regex"></label><label><span data-i18n="rasterStep">Raster step (mm)</span><input type="number" min="0.02" step="0.01" data-config="antenna.raster_step_mm"></label><label><span data-i18n="neckWidth">Narrow-neck width (mm)</span><input type="number" min="0.05" step="0.05" data-config="antenna.narrow_neck_width_mm"></label><label><span data-i18n="groundConnectionWidth">Required GND connection width t (mm)</span><input type="number" min="0.1" step="0.05" data-config="antenna.required_ground_connection_width_mm"></label><label><span data-i18n="padProtectionMargin">Pad protection margin (mm)</span><input type="number" min="0.05" step="0.05" data-config="antenna.pad_protection_margin_mm"></label><label><span data-i18n="perimeterGroundProtection">Protected perimeter GND band (mm)</span><input type="number" min="0.1" step="0.1" data-config="antenna.perimeter_ground_protection_mm"></label><label><span data-i18n="minAppendageLength">Minimum appendage length (mm)</span><input type="number" min="0" step="0.1" data-config="antenna.minimum_appendage_length_mm"></label><label><span data-i18n="maxAnchorDistance">Maximum anchor distance (mm)</span><input type="number" min="0.1" step="0.1" data-config="antenna.maximum_anchor_distance_mm"></label><label><span data-i18n="bridgeLength">Maximum bridge length (mm)</span><input type="number" min="0.1" step="0.1" data-config="fixes.maximum_bridge_length_mm"></label><label><span data-i18n="viaDiameter">Via diameter (mm)</span><input type="number" min="0.1" step="0.05" data-config="fixes.via_diameter_mm"></label><label><span data-i18n="viaDrill">Via drill (mm)</span><input type="number" min="0.05" step="0.05" data-config="fixes.via_drill_mm"></label></div></section>
+            <section class="settings-pane" id="settings-noise"><h2 data-i18n="noiseSettings">Qualitative noise checks</h2><div class="form-grid"><label><span data-i18n="riseTime">Signal rise time (ns)</span><input type="number" min="0.01" step="0.05" data-config="noise.signal_rise_time_ns"></label><label><span data-i18n="parallelSpacing">Parallel spacing warning (mm)</span><input type="number" min="0.01" step="0.05" data-config="noise.parallel_spacing_warning_mm"></label><label><span data-i18n="parallelOverlap">Parallel overlap warning (mm)</span><input type="number" min="0.1" step="0.5" data-config="noise.parallel_overlap_warning_mm"></label><label><span data-i18n="cornerAngle">Corner-angle warning (deg)</span><input type="number" min="1" max="179" step="1" data-config="noise.acute_corner_warning_deg"></label><label><span data-i18n="traceLength">Trace-length warning (mm)</span><input type="number" min="0.1" step="1" data-config="noise.trace_length_warning_mm"></label><label><span data-i18n="returnViaRadius">Return-via radius (mm)</span><input type="number" min="0.1" step="0.1" data-config="noise.return_via_radius_mm"></label><label><span data-i18n="cornerMinSegment">Minimum segment for corner check (mm)</span><input type="number" min="0.05" step="0.05" data-config="noise.corner_min_segment_length_mm"></label><label><span data-i18n="longNetMode">Long-net trigger mode</span><select data-config="noise.long_net_trigger_mode"><option value="both_or_severe">Both, or severe single excess</option><option value="both">Both thresholds</option><option value="either">Either threshold</option></select></label><label><span data-i18n="longNetSevere">Severe threshold multiplier</span><input type="number" min="1" step="0.1" data-config="noise.long_net_severe_multiplier"></label><label><span data-i18n="longNetScanBudget">Route-diameter scan budget</span><input type="number" min="2" max="128" step="1" data-config="noise.long_net_diameter_scan_limit"></label><label class="switch-row"><span><strong data-i18n="excludePadCorners">Exclude corners inside same-net pads/vias</strong></span><input type="checkbox" data-config="noise.corner_pad_exclusion"></label></div></section>
+            <section class="settings-pane" id="settings-silk"><h2 data-i18n="silkSettings">Silkscreen optimizer</h2><div class="form-grid"><label><span data-i18n="textWidth">Text width (mm)</span><input type="number" min="0.1" step="0.05" data-config="silkscreen.text_width_mm"></label><label><span data-i18n="textHeight">Text height (mm)</span><input type="number" min="0.1" step="0.05" data-config="silkscreen.text_height_mm"></label><label><span data-i18n="textThickness">Stroke thickness (mm)</span><input type="number" min="0.01" step="0.01" data-config="silkscreen.text_thickness_mm"></label><label><span data-i18n="viaClearance">Via clearance (mm)</span><input type="number" min="0" step="0.05" data-config="silkscreen.minimum_via_clearance_mm"></label><label><span data-i18n="edgeClearance">Edge clearance (mm)</span><input type="number" min="0" step="0.05" data-config="silkscreen.minimum_edge_clearance_mm"></label><label class="switch-row"><span><strong data-i18n="hideReference">Hide references</strong></span><input type="checkbox" data-config="silkscreen.hide_reference"></label></div></section>
+            <section class="settings-pane" id="settings-edge"><h2 data-i18n="edgeSettings">Board-outline optimizer</h2><div class="form-grid"><label><span data-i18n="outlineMode">Outline mode</span><select data-config="edge.mode"><option value="orthogonal">Orthogonal</option><option value="diagonal">Diagonal</option></select></label><label><span data-i18n="vertexGrid">Vertex grid (mm)</span><select data-config="edge.grid_mm"><option value="0.1">0.1</option><option value="0.5">0.5</option><option value="1">1.0</option></select></label><label><span data-i18n="filletRadius">Fillet radius (mm)</span><input type="number" min="0.05" step="0.1" data-config="edge.fillet_radius_mm"></label><label><span data-i18n="componentMargin">Component margin (mm)</span><input type="number" min="0" step="0.1" data-config="edge.component_margin_mm"></label><label><span data-i18n="groundBand">Minimum GND band (mm)</span><input type="number" min="0.1" step="0.1" data-config="edge.minimum_ground_band_mm"></label><label><span data-i18n="maxReduction">Maximum area reduction (%)</span><input type="number" min="0" max="90" step="1" data-config="edge.maximum_area_reduction_percent"></label><label><span data-i18n="outlineStrategy">Outline strategy</span><select data-config="edge.outline_strategy"><option value="convex_preserve_existing_concavities">Convex + existing concavities</option><option value="convex">Convex only</option><option value="legacy_concave">Legacy concave optimizer</option></select></label><label><span data-i18n="targetVertices">Target vertex count</span><input type="number" min="4" max="64" step="1" data-config="edge.target_vertex_count"></label><label class="switch-row"><span><strong data-i18n="preserveConcavities">Preserve only pre-existing concavities</strong></span><input type="checkbox" data-config="edge.preserve_existing_concavities"></label><label class="switch-row"><span><strong data-i18n="allowDiagonal">Allow diagonal edges</strong></span><input type="checkbox" data-config="edge.allow_diagonal_edges"></label><label class="switch-row"><span><strong data-i18n="allowEdgeReplacement">Allow destructive replacement</strong><small data-i18n="edgeReplacementHelp">Still requires GND proof and typed confirmation</small></span><input type="checkbox" data-config="edge.allow_destructive_edge_replacement"></label></div></section>
+            <section class="settings-pane" id="settings-advanced"><h2 data-i18n="advancedJson">Advanced JSON</h2><p data-i18n="advancedJsonText">Edit every parameter. Unknown keys are ignored; invalid values are rejected.</p><textarea class="json-editor" id="configJson" spellcheck="false"></textarea></section>
+            <div class="settings-actions"><span id="settingsState"></span><button class="button secondary" id="resetConfigButton" data-i18n="reloadValues">Reload values</button><button class="button primary" id="saveConfigButton" data-i18n="saveSettings">Save settings</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <div class="modal-backdrop hidden" id="detailsModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal"><button class="modal-close" id="modalClose" aria-label="Close">×</button><h2 id="modalTitle">Finding</h2><div id="modalContent"></div><div class="modal-actions"><button class="button secondary" id="previewLocateFindingButton" data-i18n="locateInPreview">プレビュー上で場所を表示</button><button class="button primary" id="locateFindingButton" data-i18n="locateInKicad">KiCadで場所を表示</button></div></div>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+EMI Guardian - INSTALL FIRST / 最初に確認してください
+======================================================
+
+Recommended / 推奨:
+Use the installer ZIP for Windows, macOS, or Linux. Close every KiCad window,
+extract the ZIP, and run its Install-or-Update launcher.
+
+Manual installation / 手動インストール:
+Place this complete directory at the KiCad 10 IPC plugin location so the final
+path is exactly:
+
+  Windows: <Documents>\KiCad\10.0\plugins\emi-guardian\plugin.json
+  macOS:   ~/Documents/KiCad/10.0/plugins/emi-guardian/plugin.json
+  Linux:   ~/.local/share/KiCad/10.0/plugins/emi-guardian/plugin.json
+
+Correct / 正:
+  plugins/emi-guardian/plugin.json
+
+Wrong / 誤:
+  plugins/emi-guardian/emi-guardian/plugin.json
+  plugins/emi-guardian-manual-install/emi-guardian/plugin.json
+
+Enable KiCad API in the KiCad-wide Preferences > Plugins page, confirm the
+Python interpreter, restart KiCad, open a board, then use:
+
+  PCB Editor > Tools > External Plugins > Open EMI Guardian
+
+Python 3.9 or later is supported. The first start may recreate the plugin's
+managed Python environment. Keep Dry-run enabled until every proposal has been
+reviewed.
