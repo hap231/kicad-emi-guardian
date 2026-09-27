@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: pip
       - name: Install quality dependencies
         run: python -m pip install --upgrade pip && python -m pip install -e ".[quality]"
@@ -88,7 +88,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: pip
       - name: Install documentation dependencies
         run: python -m pip install --upgrade pip && python -m pip install -e ".[docs]"
@@ -107,7 +107,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: pip
       - name: Install audit tool
         run: python -m pip install --upgrade pip && python -m pip install "pip-audit>=2.9,<3"
@@ -126,7 +126,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: pip
       - name: Install build dependencies
         run: python -m pip install --upgrade pip && python -m pip install -e ".[test,docs,quality]"
